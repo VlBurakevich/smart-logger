@@ -1,1 +1,2 @@
-# smart-logger
+# Smart Logger
+приложение для умной обработки и мониторинга логов на сервисах spring-boot

@@ -1,1 +1,24 @@
-spring.application.name=core-service
+smart-logs:
+  enabled: true
+  account-id: udiawdIUJ123
+  server-url: http://localhost:8080
+  application-name: core-service
+  batch-size: 1
+
+spring:
+  jpa:
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        ddl-auto: validate
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/smart_logger_db  # TODO заменить на db когда будет в контейнере
+    username: root
+    password: root
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    enabled: true
