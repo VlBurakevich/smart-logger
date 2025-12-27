@@ -15,7 +15,7 @@ spring:
         ddl-auto: validate
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/smart_logger_db  # TODO заменить на db когда будет в контейнере
+    url: jdbc:postgresql://smart_logger_db:5432/smart_logger_db
     username: root
     password: root
     driver-class-name: org.postgresql.Driver
