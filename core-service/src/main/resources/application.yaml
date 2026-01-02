@@ -1,24 +1,34 @@
-smart-logs:
-  enabled: true
-  account-id: udiawdIUJ123
-  server-url: http://localhost:8080
-  application-name: core-service
-  batch-size: 1
-
 spring:
   jpa:
     open-in-view: false
     show-sql: true
+
     properties:
       hibernate:
         format_sql: true
         ddl-auto: validate
 
   datasource:
-    url: jdbc:postgresql://smart_logger_db:5432/smart_logger_db
-    username: root
-    password: root
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
     enabled: true
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    listener:
+      concurrency: 3
+      ack-mode: manual_immediate

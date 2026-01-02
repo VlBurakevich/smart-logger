@@ -16,6 +16,7 @@ public class LogIngestionService {
     private final String topic;
 
     //TODO добавить логику проверки accountId
+    // скорее всего подключить reddis проверять в начале в нём потом делать запрос в core
 
     public LogIngestionService(
             KafkaTemplate<String, LogEventDto> kafkaTemplate,

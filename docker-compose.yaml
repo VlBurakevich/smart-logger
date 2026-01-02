@@ -1,50 +1,117 @@
 services:
-  db:
+  core-db:
     image: postgres:17-alpine
-    container_name: smart_logger_db
+    container_name: core-service-db
     environment:
-      POSTGRES_DB: smart_logger_db
+      POSTGRES_DB: core-service-db
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - core_db_data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d core-service-db"]
+
+  auth-db:
+    image: postgres:17-alpine
+    container_name: auth-service-db
+    environment:
+      POSTGRES_DB: auth-service-db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U root -d auth-service-db" ]
+
+  notification-db:
+    image: postgres:17-alpine
+    container_name: notification-service-db
+    environment:
+      POSTGRES_DB: notification-service-db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5434:5432"
+    volumes:
+      - notification_db_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U root -d notification-service-db" ]
 
   kafka:
     image: apache/kafka:4.0.0
     ports:
       - "9092:9092"
-      - "29092:29092"
     environment:
-      KAFKA_BROKER_ID: 1
+      KAFKA_NODE_ID: 1
+      KAFKA_CLUSTER_ID: "4L6699E8HK92B694319692"
       KAFKA_PROCESS_ROLES: broker, controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-      KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:29092,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
 
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-
       KAFKA_LOG4J_LOGGERS: org.apache.kafka=ERROR,kafka=ERROR
 
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
     ports:
-      - "8090:8080"
+      - "8090:8090"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
       LOGGING_LEVEL_ROOT: WARN
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  redis:
+    image: redis:8.4-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --requirepass "SUPER_PASSWORD!@#"
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+
+  victorialogs:
+    image: victoriametrics/victoria-logs:v1.43.0
+    container_name: victorialogs
+    ports:
+      - "9428:9428"
+    volumes:
+      - victorialogs_data:/victorialogs-data
+    command:
+      - --storageDataPath=/victorialogs-data
+      - --retentionPeriod=2d
+      - --httpListenAddr=:9428
+    restart: unless-stopped
     networks:
       - app-network
 
@@ -52,13 +119,20 @@ services:
     build: ./core-service
     container_name: core-service
     depends_on:
-      - kafka
-      - db
+      core-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_TOPIC_INPUT_LOG: logs.raw
       KAFKA_TOPIC_OUTPUT_LOG: logs.processed
       KAFKA_TOPIC_INPUT_RESULT: logs.results
+
+      DATABASE_URL: jdbc:postgresql://core-service-db:5432/core-service-db
+      DATABASE_USER: root
+      DATABASE_PASSWORD: root
+
       SERVICE_NAME: core
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -70,7 +144,8 @@ services:
     build: ./log-ingestion-service
     container_name: log-ingestion-service
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_TOPIC_OUTPUT: logs.raw
@@ -85,7 +160,8 @@ services:
     build: ./model-inference-service
     container_name: model-inference-service
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_TOPIC_INPUT: logs.processed
@@ -102,8 +178,8 @@ services:
     build: ./api-gateway
     container_name: api-gateway
     depends_on:
-      - kafka
-      - core-service
+      kafka:
+        condition: service_healthy
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_TOPIC_INPUT_SUMMARY: logs.summary
@@ -114,10 +190,51 @@ services:
     networks:
       - app-network
 
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: jdbc:postgresql://notification-service-db:5432/notification-service-db
+      DATABASE_USER: root
+      DATABASE_PASSWORD: root
+
+      SERVICE_NAME: notification-service
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8084:8080"
+    networks:
+      - app-network
+
+  authentication-service:
+    build: ./authentication-service
+    container_name: authentication-service
+    depends_on:
+      auth-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: jdbc:postgresql://auth-service-db:5432/auth-service-db
+      DATABASE_USER: root
+      DATABASE_PASSWORD: root
+
+      SERVICE_NAME: authentication-service
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8085:8080"
+    networks:
+      - app-network
 
 networks:
   app-network:
     driver: bridge
 
 volumes:
-  postgres_data:
+  auth_db_data:
+  core_db_data:
+  redis_data:
+  victorialogs_data:
+  notification_db_data:

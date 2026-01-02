@@ -21,11 +21,14 @@
         <module>core-service</module>
         <module>log-ingestion-service</module>
         <module>model-inference-service</module>
+        <module>notification-service</module>
+        <module>authentication-service</module>
     </modules>
 
     <properties>
         <java.version>21</java.version>
     </properties>
+
     <build>
         <pluginManagement>
             <plugins>
