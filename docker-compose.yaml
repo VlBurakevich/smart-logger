@@ -196,6 +196,8 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+      notification-db:
+        condition: service_healthy
     environment:
       DATABASE_URL: jdbc:postgresql://notification-service-db:5432/notification-service-db
       DATABASE_USER: root

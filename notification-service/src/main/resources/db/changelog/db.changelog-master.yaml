@@ -1,1 +1,7 @@
 databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: admin
+      changes:
+        - sqlFile:
+            path: classpath:/db/changelog/scripts/createTelegramChatBindings.sql
