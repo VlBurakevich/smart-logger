@@ -46,4 +46,28 @@ public class RefreshToken {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)
     private OffsetDateTime createdAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RefreshToken that = (RefreshToken) o;
+        return id != null && id.equals(that.id);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "RefreshToken {" +
+                "id=" + id +
+                "tokenHash=" + tokenHash +
+                "expiresAt=" + expiresAt +
+                "createdAt=" + createdAt +
+                "}";
+    }
 }

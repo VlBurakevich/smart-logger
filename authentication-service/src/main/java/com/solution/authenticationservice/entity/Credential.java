@@ -38,4 +38,26 @@ public class Credential {
     @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Credential that = (Credential) o;
+        return userId != null && userId.equals(that.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Credential {" +
+                "userId=" + userId +
+                ", email=" + email +
+                ", passwordHash="+ passwordHash +
+                "}";
+    }
 }
