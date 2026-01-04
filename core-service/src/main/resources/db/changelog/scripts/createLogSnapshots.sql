@@ -12,6 +12,6 @@ CREATE TABLE log_snapshots
     created_at     TIMESTAMPTZ          DEFAULT NOW()
 );
 
-CREATE INDEX idx_log_snapshots_account_snapshot ON log_snapshots (account_id, created_at DESC);
+CREATE INDEX idx_log_snapshots_account_time ON log_snapshots (account_id, created_at DESC);
 CREATE INDEX idx_log_snapshots_errors_gin ON log_snapshots USING GIN (errors);
 CREATE INDEX idx_log_snapshots_anomalies_gin ON log_snapshots USING GIN (anomalies);

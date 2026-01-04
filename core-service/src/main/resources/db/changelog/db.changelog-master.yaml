@@ -12,7 +12,7 @@ databaseChangeLog:
         - sqlFile:
             path: classpath:/db/changelog/scripts/createLogSnapshots.sql
   - changeSet:
-      id: 1
+      id: 2
       author: admin
       changes:
         - sqlFile:
