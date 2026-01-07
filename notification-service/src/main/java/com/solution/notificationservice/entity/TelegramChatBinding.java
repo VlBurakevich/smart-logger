@@ -9,8 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -38,6 +38,32 @@ public class TelegramChatBinding {
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "last_notification_at")
-    private LocalDateTime lastNotificationAt;
+    private OffsetDateTime lastNotificationAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TelegramChatBinding that = (TelegramChatBinding) o;
+        return userId != null && userId.equals(that.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "TelegramChatBinding{" +
+                "userId=" + userId +
+                ", chatId=" + chatId +
+                ", username=" + username +
+                ", firstName=" + firstName +
+                ", createdAt=" + createdAt +
+                ", lastNotificationAt" + lastNotificationAt +
+                "}";
+    }
 }

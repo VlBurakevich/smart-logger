@@ -22,31 +22,34 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "log_snapshots",
+@Table(name = "snapshots",
     indexes = {
-        @Index(name = "idx_log_snapshots_account_time", columnList = "account_id, created_at DESC")
+        @Index(
+                name = "idx_snapshots_account_time",
+                columnList = "monitoring_setting_id, created_at DESC"
+        )
     }
 )
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LogSnapshot {
+public class Snapshot {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn(name = "monitoring_setting_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private LogMonitoringSetting monitoringSetting;
+    private MonitoringSetting monitoringSetting;
 
-    @Column(name = "timestamp", nullable = false)
-    private LocalDateTime timestamp;
+    @Column(name = "snapshot_time", nullable = false)
+    private OffsetDateTime snapshotTime;
 
     @Column(name = "errors", columnDefinition = "JSONB")
     @JdbcTypeCode(SqlTypes.JSON)
@@ -70,5 +73,32 @@ public class LogSnapshot {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Snapshot that = (Snapshot) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Snapshot{" +
+                "timestamp=" + snapshotTime +
+                ", errors=" + errors +
+                ", maxSeverity=" + maxSeverity +
+                ", anomalies=" + anomalies +
+                ", aiDescription=" + aiDescription +
+                ", aiScore=" + aiScore +
+                ", rawSnippet=" + rawSnippet +
+                ", createdAt=" + createdAt +
+                "}";
+    }
 }

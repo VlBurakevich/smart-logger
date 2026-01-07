@@ -4,13 +4,13 @@ databaseChangeLog:
       author: admin
       changes:
         - sqlFile:
-            path: classpath:/db/changelog/scripts/createLogMonitoringSettings.sql
+            path: classpath:/db/changelog/scripts/createMonitoringSettings.sql
   - changeSet:
       id: 1
       author: admin
       changes:
         - sqlFile:
-            path: classpath:/db/changelog/scripts/createLogSnapshots.sql
+            path: classpath:/db/changelog/scripts/createSnapshots.sql
   - changeSet:
       id: 2
       author: admin

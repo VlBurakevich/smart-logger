@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.tomcat.util.json.JSONFilter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
@@ -22,16 +21,16 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Reports {
+public class Report {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn(name = "monitoring_settings_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private LogMonitoringSetting monitoringSetting;
+    private MonitoringSetting monitoringSetting;
 
     @Column(name = "content")
     @JdbcTypeCode(SqlTypes.JSON)
@@ -47,6 +46,31 @@ public class Reports {
     private String summary;
 
     @CreationTimestamp
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Report that = (Report) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Report{" +
+                "id=" + id +
+                ", content=" + content +
+                ", errorCount=" + errorCount +
+                ", anomalyCount=" + anomalyCount +
+                ", summary=" +  summary +
+                ", createdAt=" + createdAt +
+                "}";
+    }
 }
