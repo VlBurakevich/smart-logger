@@ -22,7 +22,7 @@
         <module>log-ingestion-service</module>
         <module>model-inference-service</module>
         <module>notification-service</module>
-        <module>authentication-service</module>
+        <module>eureka-service</module>
     </modules>
 
     <properties>

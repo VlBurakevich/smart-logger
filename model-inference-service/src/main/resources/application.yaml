@@ -1,4 +1,15 @@
 spring:
+  application:
+    name: model-inference-service
   ai:
     mistralai:
       api-key: 2OswxziTlWIK8rbPINVqoAAYnmC7D71W
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://eureka-service:8761/eureka/}
+    registry-fetch-interval-seconds: 30
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}

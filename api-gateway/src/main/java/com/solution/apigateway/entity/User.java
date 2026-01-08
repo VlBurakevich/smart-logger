@@ -1,4 +1,4 @@
-package com.solution.authenticationservice.entity;
+package com.solution.apigateway.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,9 +48,6 @@ public class User {
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, optional = true)
     private Credential credential;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<OauthAccount> oauthAccounts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<RefreshToken> refreshTokens = new ArrayList<>();

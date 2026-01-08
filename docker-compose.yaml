@@ -15,21 +15,21 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U root -d core-service-db"]
 
-  auth-db:
+  gateway-db:
     image: postgres:17-alpine
-    container_name: auth-service-db
+    container_name: gateway-db
     environment:
-      POSTGRES_DB: auth-service-db
+      POSTGRES_DB: gateway_db
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
     ports:
       - "5433:5432"
     volumes:
-      - auth_db_data:/var/lib/postgresql/data
+      - gateway_db_data:/var/lib/postgresql/data
     networks:
       - app-network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U root -d auth-service-db" ]
+      test: [ "CMD-SHELL", "pg_isready -U root -d gateway_db" ]
 
   notification-db:
     image: postgres:17-alpine
@@ -115,6 +115,17 @@ services:
     networks:
       - app-network
 
+
+  eureka-service:
+    build: ./eureka-service
+    container_name: eureka-service
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8761/actuator/health || exit 1"]
+
   core-service:
     build: ./core-service
     container_name: core-service
@@ -123,7 +134,11 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      eureka-service:
+        condition: service_healthy
     environment:
+      EUREKA_URL: http://eureka-service:8761/eureka/
+
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_TOPIC_INPUT_LOG: logs.raw
       KAFKA_TOPIC_OUTPUT_LOG: logs.processed
@@ -146,7 +161,11 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+      eureka-service:
+        condition: service_healthy
     environment:
+      EUREKA_URL: http://eureka-service:8761/eureka/
+
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_TOPIC_OUTPUT: logs.raw
       SERVICE_NAME: log-ingestion
@@ -162,7 +181,11 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+      eureka-service:
+        condition: service_healthy
     environment:
+      EUREKA_URL: http://eureka-service:8761/eureka/
+
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_TOPIC_INPUT: logs.processed
       KAFKA_TOPIC_OUTPUT: logs.results
@@ -180,7 +203,17 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+      eureka-service:
+        condition: service_healthy
+      gateway-db:
+        condition: service_healthy
     environment:
+      EUREKA_URL: http://eureka-service:8761/eureka/
+
+      DATABASE_URL: jdbc:postgresql://gateway-db:5432/gateway_db
+      DATABASE_USER: root
+      DATABASE_PASSWORD: root
+
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_TOPIC_INPUT_SUMMARY: logs.summary
       SERVICE_NAME: api-gateway
@@ -198,7 +231,11 @@ services:
         condition: service_healthy
       notification-db:
         condition: service_healthy
+      eureka-service:
+        condition: service_healthy
     environment:
+      EUREKA_URL: http://eureka-service:8761/eureka/
+
       DATABASE_URL: jdbc:postgresql://notification-service-db:5432/notification-service-db
       DATABASE_USER: root
       DATABASE_PASSWORD: root
@@ -210,32 +247,12 @@ services:
     networks:
       - app-network
 
-  authentication-service:
-    build: ./authentication-service
-    container_name: authentication-service
-    depends_on:
-      auth-db:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: jdbc:postgresql://auth-service-db:5432/auth-service-db
-      DATABASE_USER: root
-      DATABASE_PASSWORD: root
-
-      SERVICE_NAME: authentication-service
-      SPRING_PROFILES_ACTIVE: docker
-    ports:
-      - "8085:8080"
-    networks:
-      - app-network
-
 networks:
   app-network:
     driver: bridge
 
 volumes:
-  auth_db_data:
+  gateway_db_data:
   core_db_data:
   redis_data:
   victorialogs_data:

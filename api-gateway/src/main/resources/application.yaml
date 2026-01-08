@@ -1,1 +1,65 @@
+server:
+  port: 8080
 
+spring:
+  application:
+    name: api-gateway
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+      connect-timeout: 500ms
+      timeout: 500ms
+
+  jpa:
+    open-in-view: false
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+        ddl-auto: validate
+
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    enabled: true
+
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          jwk-set-uri: http://authentication-service:8080/protocol/openid-connect/certs # заменить на keycloack
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: protected_route
+              uri: lb://ingestion-service
+              predicates:
+                - Path=/api/ingestion/**
+              filters:
+                - name: AccountValidation
+               # - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+          default-filters:
+            - name: AddRequestHeader
+              args:
+                name: X-Gateway
+                value: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://eureka-service:8761/eureka/}
+    registry-fetch-interval-seconds: 30
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}

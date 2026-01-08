@@ -40,8 +40,8 @@ public class MonitoringSetting {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    @Column(name = "account_id", nullable = false)
-    private UUID accountId;
+    @Column(name = "api_key", nullable = false)
+    private UUID apiKey;
 
     @Column(name = "service_name", length = 100, nullable = false)
     private String serviceName;
@@ -86,8 +86,8 @@ public class MonitoringSetting {
     public String toString() {
         return "MonitoringSetting{" +
                 "id=" + id +
-                ", accountId=" + accountId +
                 ", userId=" + userId +
+                ", apiKey=" + apiKey +
                 ", serviceName=" + serviceName +
                 ", isActive=" + isActive +
                 ", checkMin=" + checkMin +
