@@ -1,4 +1,4 @@
-package com.solution.apigateway.entity;
+package com.solution.authservice.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

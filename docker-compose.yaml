@@ -15,21 +15,21 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U root -d core-service-db"]
 
-  gateway-db:
+  auth-db:
     image: postgres:17-alpine
-    container_name: gateway-db
+    container_name: auth-service-db
     environment:
-      POSTGRES_DB: gateway_db
+      POSTGRES_DB: auth-service-db
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
     ports:
       - "5433:5432"
     volumes:
-      - gateway_db_data:/var/lib/postgresql/data
+      - auth_db_data:/var/lib/postgresql/data
     networks:
       - app-network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U root -d gateway_db" ]
+      test: [ "CMD-SHELL", "pg_isready -U root -d auth_db" ]
 
   notification-db:
     image: postgres:17-alpine
@@ -205,14 +205,8 @@ services:
         condition: service_healthy
       eureka-service:
         condition: service_healthy
-      gateway-db:
-        condition: service_healthy
     environment:
       EUREKA_URL: http://eureka-service:8761/eureka/
-
-      DATABASE_URL: jdbc:postgresql://gateway-db:5432/gateway_db
-      DATABASE_USER: root
-      DATABASE_PASSWORD: root
 
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_TOPIC_INPUT_SUMMARY: logs.summary
@@ -220,6 +214,28 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - "8083:8080"
+    networks:
+      - app-network
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    depends_on:
+      eureka-service:
+        condition: service_healthy
+      auth-db:
+        condition: service_healthy
+    environment:
+      EUREKA_URL: http://eureka-service:8761/eureka/
+
+      DATABASE_URL: jdbc:postgresql://auth-service-db:5432/auth-service-db
+      DATABASE_USER: root
+      DATABASE_PASSWORD: root
+
+      SERVICE_NAME: auth-service
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8084:8080"
     networks:
       - app-network
 
@@ -243,7 +259,7 @@ services:
       SERVICE_NAME: notification-service
       SPRING_PROFILES_ACTIVE: docker
     ports:
-      - "8084:8080"
+      - "8085:8080"
     networks:
       - app-network
 
@@ -252,7 +268,7 @@ networks:
     driver: bridge
 
 volumes:
-  gateway_db_data:
+  auth_db_data:
   core_db_data:
   redis_data:
   victorialogs_data:

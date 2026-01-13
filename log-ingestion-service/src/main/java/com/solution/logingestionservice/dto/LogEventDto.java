@@ -20,7 +20,7 @@ public class LogEventDto {
     @Size(max = 65535)
     private String message;
     @NotBlank
-    private String logServiceName;
+    private String serviceName;
     @NotEmpty
     private long timestamp;
 }

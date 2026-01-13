@@ -1,4 +1,4 @@
-package com.solution.apigateway.entity;
+package com.solution.authservice.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

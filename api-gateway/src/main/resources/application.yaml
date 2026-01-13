@@ -1,3 +1,11 @@
+app:
+  redis:
+    account-ttl: 10m
+
+jwt:
+  secret:
+    key: ls2cNJbDUq2wly1Q+84QqvXcdP3iasWTj0XP0sYmKP0=
+
 server:
   port: 8080
 
@@ -12,48 +20,15 @@ spring:
       connect-timeout: 500ms
       timeout: 500ms
 
-  jpa:
-    open-in-view: false
-    show-sql: true
-
-    properties:
-      hibernate:
-        format_sql: true
-        ddl-auto: validate
-
-  datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USER}
-    password: ${DATABASE_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-
-  liquibase:
-    change-log: classpath:/db/changelog/db.changelog-master.yaml
-    enabled: true
-
-#  security:
-#    oauth2:
-#      resourceserver:
-#        jwt:
-#          jwk-set-uri: http://authentication-service:8080/protocol/openid-connect/certs # заменить на keycloack
-
   cloud:
     gateway:
       server:
-        webflux:
+        webmvc:
           routes:
             - id: protected_route
               uri: lb://ingestion-service
               predicates:
-                - Path=/api/ingestion/**
-              filters:
-                - name: AccountValidation
-               # - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
-          default-filters:
-            - name: AddRequestHeader
-              args:
-                name: X-Gateway
-                value: true
+              - Path=/api/ingestion/**
 
 eureka:
   client:
