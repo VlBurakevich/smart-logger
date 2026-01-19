@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LogEventDto {
     @NotBlank
-    private String accountId;
+    private String apiKey;
     @NotBlank
     private String level;
     @NotBlank

@@ -1,0 +1,8 @@
+CREATE TABLE api_keys
+(
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    key_value UUID NOT NULL UNIQUE,
+    name VARCHAR(255),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);

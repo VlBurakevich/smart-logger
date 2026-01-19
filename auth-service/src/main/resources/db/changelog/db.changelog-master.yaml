@@ -29,3 +29,9 @@ databaseChangeLog:
       changes:
         - sqlFile:
             path: classpath:/db/changelog/scripts/createRefreshTokens.sql
+  - changeSet:
+      id: 5
+      author: admin
+      changes:
+        - sqlFile:
+            path: classpath:/db/changelog/scripts/setRoles.sql

@@ -30,15 +30,12 @@ public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private UUID token;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
-
-    @Column(name = "token_hash", columnDefinition = "TEXT")
-    private String tokenHash;
 
     @Column(name = "expires_at", nullable = false)
     private OffsetDateTime expiresAt;
@@ -52,8 +49,7 @@ public class RefreshToken {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RefreshToken that = (RefreshToken) o;
-        return id != null && id.equals(that.id);
-
+        return token != null && token.equals(that.token);
     }
 
     @Override
@@ -64,10 +60,13 @@ public class RefreshToken {
     @Override
     public String toString() {
         return "RefreshToken {" +
-                "id=" + id +
-                "tokenHash=" + tokenHash +
+                "token=" + token +
                 "expiresAt=" + expiresAt +
                 "createdAt=" + createdAt +
                 "}";
+    }
+
+    public boolean isExpired() {
+        return OffsetDateTime.now().isAfter(expiresAt);
     }
 }
