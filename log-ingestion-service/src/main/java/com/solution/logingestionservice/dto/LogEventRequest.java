@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LogEventDto {
+public class LogEventRequest {
     @NotBlank
-    private String apiKey;
+    private String apiKey; //move to header
     @NotBlank
     private String level;
     @NotBlank

@@ -2,9 +2,12 @@ package com.solution.coreservice.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -23,7 +26,7 @@ import java.util.UUID;
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uk_monitoring_account_service",
-                        columnNames = {"account_id", "service_name"}
+                        columnNames = {"api_key_id", "service_name"}
                 )
         }
 )
@@ -37,17 +40,12 @@ public class MonitoringSetting {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
-
-    @Column(name = "api_key", nullable = false)
-    private UUID apiKey;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "api_key_id", nullable = false)
+    private ApiKey apiKey;
 
     @Column(name = "service_name", length = 100, nullable = false)
     private String serviceName;
-
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
 
     @Column(name = "check_min")
     private Integer checkMin;
@@ -86,10 +84,7 @@ public class MonitoringSetting {
     public String toString() {
         return "MonitoringSetting{" +
                 "id=" + id +
-                ", userId=" + userId +
-                ", apiKey=" + apiKey +
                 ", serviceName=" + serviceName +
-                ", isActive=" + isActive +
                 ", checkMin=" + checkMin +
                 ", reportHr=" + reportHr +
                 ", lastCheckedAt=" + lastCheckedAt +

@@ -91,6 +91,7 @@ public class Snapshot {
     @Override
     public String toString() {
         return "Snapshot{" +
+                "id=" + id +
                 "timestamp=" + snapshotTime +
                 ", errors=" + errors +
                 ", maxSeverity=" + maxSeverity +

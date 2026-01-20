@@ -1,7 +1,7 @@
 package com.solution.logingestionservice.controller;
 
 
-import com.solution.logingestionservice.dto.LogEventDto;
+import com.solution.logingestionservice.dto.LogEventRequest;
 import com.solution.logingestionservice.service.LogIngestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class LogIngestionController {
     private final LogIngestionService ingestionService;
 
     @PostMapping("/batch")
-    public ResponseEntity<Void> ingestLog(@Valid @RequestBody List<LogEventDto> logEvent) {
+    public ResponseEntity<Void> ingestLog(@Valid @RequestBody List<LogEventRequest> logEvent) {
         ingestionService.sendBatchToKafka(logEvent);
         return ResponseEntity.accepted().build();
     }

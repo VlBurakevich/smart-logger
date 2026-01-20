@@ -1,14 +1,9 @@
 package com.solution.coreservice.service;
 
-import com.solution.coreservice.dto.LogEventDto;
+import com.solution.coreservice.dto.request.LogEventRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -17,9 +12,9 @@ public class LogProcessingService {
     @Value("${KAFKA_TOPIC_OUTPUT_LOG:logs.processing}")
     private String outputTopic;
 
-    private final KafkaTemplate<String, LogEventDto> kafkaTemplate;
+    private final KafkaTemplate<String, LogEventRequest> kafkaTemplate;
 
-    public LogProcessingService(KafkaTemplate<String, LogEventDto> kafkaTemplate) {
+    public LogProcessingService(KafkaTemplate<String, LogEventRequest> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 //

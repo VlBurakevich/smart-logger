@@ -28,8 +28,11 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MonitoringSetting> settings = new ArrayList<>();
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<ApiKey> apiKeys = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
@@ -42,5 +45,14 @@ public class User {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", isActive=" + isActive +
+                ", username=" + username +
+                "}";
     }
 }

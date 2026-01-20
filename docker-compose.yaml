@@ -121,10 +121,54 @@ services:
     container_name: eureka-service
     ports:
       - "8761:8761"
+    environment:
+      EUREKA_URL: http://eureka-service:8761/eureka/
     networks:
       - app-network
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://localhost:8761/actuator/health || exit 1"]
+
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    depends_on:
+      kafka:
+        condition: service_healthy
+      eureka-service:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-service:8761/eureka/
+
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_INPUT_SUMMARY: logs.summary
+      SERVICE_NAME: api-gateway
+      SPRING_PROFILES_ACTIVE: docker
+    entrypoint: [ "java", "--add-opens", "java.base/java.lang=ALL-UNNAMED", "-jar", "app.jar" ]
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+  log-ingestion-service:
+    build: ./log-ingestion-service
+    container_name: log-ingestion-service
+    depends_on:
+      kafka:
+        condition: service_healthy
+      eureka-service:
+        condition: service_healthy
+    environment:
+      EUREKA_URL: http://eureka-service:8761/eureka/
+
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_OUTPUT: logs.raw
+      SERVICE_NAME: log-ingestion
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8081:8080"
+    networks:
+      - app-network
 
   core-service:
     build: ./core-service
@@ -151,69 +195,7 @@ services:
       SERVICE_NAME: core
       SPRING_PROFILES_ACTIVE: docker
     ports:
-      - "8080:8080"
-    networks:
-      - app-network
-
-  log-ingestion-service:
-    build: ./log-ingestion-service
-    container_name: log-ingestion-service
-    depends_on:
-      kafka:
-        condition: service_healthy
-      eureka-service:
-        condition: service_healthy
-    environment:
-      EUREKA_URL: http://eureka-service:8761/eureka/
-
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_TOPIC_OUTPUT: logs.raw
-      SERVICE_NAME: log-ingestion
-      SPRING_PROFILES_ACTIVE: docker
-    ports:
-      - "8081:8080"
-    networks:
-      - app-network
-
-  model-inference-service:
-    build: ./model-inference-service
-    container_name: model-inference-service
-    depends_on:
-      kafka:
-        condition: service_healthy
-      eureka-service:
-        condition: service_healthy
-    environment:
-      EUREKA_URL: http://eureka-service:8761/eureka/
-
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_TOPIC_INPUT: logs.processed
-      KAFKA_TOPIC_OUTPUT: logs.results
-      KAFKA_CONSUMER_GROUP_ID: model-inference-group
-      SERVICE_NAME: model-inference
-      SPRING_PROFILES_ACTIVE: docker
-    ports:
       - "8082:8080"
-    networks:
-      - app-network
-
-  api-gateway:
-    build: ./api-gateway
-    container_name: api-gateway
-    depends_on:
-      kafka:
-        condition: service_healthy
-      eureka-service:
-        condition: service_healthy
-    environment:
-      EUREKA_URL: http://eureka-service:8761/eureka/
-
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_TOPIC_INPUT_SUMMARY: logs.summary
-      SERVICE_NAME: api-gateway
-      SPRING_PROFILES_ACTIVE: docker
-    ports:
-      - "8083:8080"
     networks:
       - app-network
 
@@ -235,9 +217,32 @@ services:
       SERVICE_NAME: auth-service
       SPRING_PROFILES_ACTIVE: docker
     ports:
+      - "8083:8080"
+    networks:
+      - app-network
+
+  model-inference-service:
+    build: ./model-inference-service
+    container_name: model-inference-service
+    depends_on:
+      kafka:
+        condition: service_healthy
+      eureka-service:
+        condition: service_healthy
+    environment:
+      EUREKA_URL: http://eureka-service:8761/eureka/
+
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_INPUT: logs.processed
+      KAFKA_TOPIC_OUTPUT: logs.results
+      KAFKA_CONSUMER_GROUP_ID: model-inference-group
+      SERVICE_NAME: model-inference
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
       - "8084:8080"
     networks:
       - app-network
+
 
   notification-service:
     build: ./notification-service

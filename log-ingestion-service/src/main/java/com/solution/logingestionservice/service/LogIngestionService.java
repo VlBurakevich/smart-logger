@@ -1,7 +1,7 @@
 package com.solution.logingestionservice.service;
 
 
-import com.solution.logingestionservice.dto.LogEventDto;
+import com.solution.logingestionservice.dto.LogEventRequest;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -12,19 +12,19 @@ import java.util.List;
 @Slf4j
 @Service
 public class LogIngestionService {
-    private final KafkaTemplate<String, LogEventDto> kafkaTemplate;
+    private final KafkaTemplate<String, LogEventRequest> kafkaTemplate;
     private final String topic;
 
     public LogIngestionService(
-            KafkaTemplate<String, LogEventDto> kafkaTemplate,
+            KafkaTemplate<String, LogEventRequest> kafkaTemplate,
             @Value("${KAFKA_TOPIC_LOGS_RAW:logs.raw}") String topic
     ) {
         this.kafkaTemplate = kafkaTemplate;
         this.topic = topic;
     }
 
-    public void sendToKafka(LogEventDto logEvent) {
-        String key = logEvent.getAccountId();
+    public void sendToKafka(LogEventRequest logEvent) {
+        String key = logEvent.getApiKey();
 
         kafkaTemplate.send(topic, key, logEvent)
             .whenComplete(
@@ -38,9 +38,9 @@ public class LogIngestionService {
             );
     }
 
-    public void sendBatchToKafka(List<LogEventDto> batch) {
-        for (LogEventDto logEvent : batch) {
-            String key = logEvent.getAccountId();
+    public void sendBatchToKafka(List<LogEventRequest> batch) {
+        for (LogEventRequest logEvent : batch) {
+            String key = logEvent.getApiKey();
 
             kafkaTemplate.send(topic, key, logEvent)
                 .whenComplete((result, ex) -> {

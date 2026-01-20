@@ -22,19 +22,21 @@ spring:
 
   cloud:
     gateway:
-      server:
-        webmvc:
-          routes:
-            - id: protected_route
-              uri: lb://ingestion-service
-              predicates:
-              - Path=/api/ingestion/**
+      mvc:
+        routes:
+          - id: ingestion_api_route
+            uri: lb://ingestion-service
+            predicates:
+            - Path=/api/ingestion/**
 
 eureka:
   client:
+    fetch-registry: true
+    register-with-eureka: true
     service-url:
-      defaultZone: ${EUREKA_URL:http://eureka-service:8761/eureka/}
-    registry-fetch-interval-seconds: 30
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-service:8761/eureka/}
+    registry-fetch-interval-seconds: 5
   instance:
     prefer-ip-address: true
+    hostname: api-gateway
     instance-id: ${spring.application.name}:${random.value}
