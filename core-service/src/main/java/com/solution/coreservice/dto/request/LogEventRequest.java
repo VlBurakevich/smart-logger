@@ -5,17 +5,14 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@AllArgsConstructor
+import java.time.OffsetDateTime;
+
+@Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class LogEventRequest {
-    @NotBlank
-    private String accountId;
     @NotBlank
     private String level;
     @NotBlank
@@ -24,5 +21,5 @@ public class LogEventRequest {
     @NotBlank
     private String logServiceName;
     @NotEmpty
-    private long timestamp;
+    private OffsetDateTime timestamp;
 }

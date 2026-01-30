@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
@@ -33,7 +32,7 @@ public class JwtService {
         claims.put("userId", user.getId());
         claims.put("roles", user.getRoles().stream()
                 .map(Role::getName)
-                .collect(Collectors.toList()));
+                .toList());
 
         if (user.getCredential() != null) {
             claims.put("credential", user.getCredential().getEmail());
@@ -74,7 +73,7 @@ public class JwtService {
         return Jwts.parser()
                 .verifyWith(getSignKey())
                 .build()
-                .parseEncryptedClaims(token)
+                .parseSignedClaims(token)
                 .getPayload();
     }
 

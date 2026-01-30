@@ -17,15 +17,15 @@ import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
-public class AccountValidationFilter extends OncePerRequestFilter {
+public class ApiKeyValidationFilter extends OncePerRequestFilter {
 
     private final RedisService redisService;
     private final CoreServiceClient coreClient;
 
-    private static final String ACCOUNT_ID_HEADER = "X-Account-Id";
+    private static final String API_KEY_HEADER = "X-Api-Key";
 
     @Value("${app.redis.account-ttl:15m}")
-    private Duration accountTtl;
+    private Duration apiKeyTtl;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -39,21 +39,21 @@ public class AccountValidationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String accountId = request.getHeader(ACCOUNT_ID_HEADER);
+        String apiKey = request.getHeader(API_KEY_HEADER);
 
-        if (accountId == null || accountId.isBlank()) {
+        if (apiKey == null || apiKey.isBlank()) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
 
-        if (!redisService.exists(accountId)) {
-            if (!coreClient.accountExists(accountId)) {
+        if (!redisService.exists(apiKey)) {
+            if (!coreClient.apiKeyExists(apiKey)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
-            redisService.save(accountId, accountTtl);
+            redisService.save(apiKey, apiKeyTtl);
         } else {
-            redisService.extendTtl(accountId, accountTtl);
+            redisService.extendTtl(apiKey, apiKeyTtl);
         }
 
         filterChain.doFilter(request, response);

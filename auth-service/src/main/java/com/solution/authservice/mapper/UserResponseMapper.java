@@ -9,7 +9,6 @@ import org.mapstruct.Named;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface UserResponseMapper {
@@ -24,7 +23,6 @@ public interface UserResponseMapper {
         if (roles == null) return List.of();
         return roles.stream()
                 .map(Role::getName)
-                .collect(Collectors.toList());
+                .toList();
     }
-
 }

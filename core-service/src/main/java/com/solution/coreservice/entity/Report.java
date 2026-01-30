@@ -28,9 +28,9 @@ public class Report {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "monitoring_settings_id", nullable = false)
+    @JoinColumn(name = "service_config_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MonitoringSetting monitoringSetting;
+    private ServiceConfig serviceConfig;
 
     @Column(name = "content")
     @JdbcTypeCode(SqlTypes.JSON)

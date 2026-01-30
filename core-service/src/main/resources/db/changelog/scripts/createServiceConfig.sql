@@ -1,4 +1,4 @@
-CREATE TABLE monitoring_settings
+CREATE TABLE service_configs
 (
     id              UUID PRIMARY KEY,
     api_key_id      UUID         NOT NULL REFERENCES api_keys (id) ON DELETE CASCADE,

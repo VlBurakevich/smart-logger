@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,6 +28,21 @@ public class JwtService {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    public List<String> extractRoles(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            List<?> roles = claims.get("roles", List.class);
+            if (roles != null) {
+                return roles.stream()
+                        .map(Object::toString)
+                        .toList();
+            }
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+        return Collections.emptyList();
     }
 
     private Claims extractAllClaims(String token) {

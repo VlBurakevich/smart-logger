@@ -1,9 +1,10 @@
 package com.solution.coreservice.repository;
 
-import com.solution.coreservice.entity.MonitoringSetting;
+import com.solution.coreservice.entity.ServiceConfig;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MonitoringSettingRepository extends JpaRepository<MonitoringSetting, Long> {
+public interface ServiceConfigRepository extends JpaRepository<ServiceConfig, Long> {
+
 }

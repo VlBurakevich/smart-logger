@@ -9,11 +9,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class LogEventRequest {
-    @NotBlank
-    private String apiKey; //move to header
     @NotBlank
     private String level;
     @NotBlank

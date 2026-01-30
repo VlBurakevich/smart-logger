@@ -16,7 +16,7 @@ databaseChangeLog:
       author: admin
       changes:
         - sqlFile:
-            path: classpath:/db/changelog/scripts/createMonitoringSettings.sql
+            path: classpath:/db/changelog/scripts/createServiceConfig.sql
   - changeSet:
       id: 3
       author: admin

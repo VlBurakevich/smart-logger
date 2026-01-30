@@ -35,7 +35,6 @@ spring:
       concurrency: 3
       ack-mode: manual_immediate
 
-
 eureka:
   client:
     service-url:

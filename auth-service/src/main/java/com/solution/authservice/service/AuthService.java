@@ -1,9 +1,11 @@
 package com.solution.authservice.service;
 
+import com.solution.authservice.client.CoreServiceClient;
 import com.solution.authservice.dto.request.LogoutRequest;
 import com.solution.authservice.dto.request.RefreshRequest;
-import com.solution.authservice.dto.request.UserLoginRequest;
-import com.solution.authservice.dto.request.UserRegisterRequest;
+import com.solution.authservice.dto.request.RegisterCoreRequest;
+import com.solution.authservice.dto.request.LoginRequest;
+import com.solution.authservice.dto.request.RegisterRequest;
 import com.solution.authservice.dto.response.AuthResponse;
 import com.solution.authservice.dto.response.RegisterResponse;
 import com.solution.authservice.entity.Credential;
@@ -30,21 +32,23 @@ import java.util.UUID;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RegisterResponseMapper registerResponseMapper;
     private final RefreshTokenService refreshTokenService;
+    private final CoreServiceClient coreServiceClient;
 
     @Transactional
-    public RegisterResponse register(UserRegisterRequest userRegisterRequest) { //todo create user in core-service
-        if (userRepository.existsByUsername(userRegisterRequest.getUsername())) {
+    public RegisterResponse register(RegisterRequest registerRequest) {
+        if (userRepository.existsByUsername(registerRequest.getUsername())) {
             throw new ServiceException(HttpStatus.CONFLICT, "Username already exists");
         }
 
-        User user = createNewUser(userRegisterRequest);
+        User user = createNewUser(registerRequest);
         userRepository.save(user);
+
+        saveUserInCoreService(user);
 
         String accessToken = jwtService.generateAccessToken(user);
         RefreshToken refreshToken = refreshTokenService.create(user);
@@ -53,20 +57,29 @@ public class AuthService {
         response.setAccessToken(accessToken);
         response.setRefreshToken(refreshToken.getToken().toString());
 
-        return registerResponseMapper.toResponse(user);
+        return response;
     }
 
-    private User createNewUser(UserRegisterRequest userRegisterRequest) {
+    private void saveUserInCoreService(User user) {
+        RegisterCoreRequest request = new RegisterCoreRequest();
+        request.setId(user.getId());
+        request.setUsername(user.getUsername());
+        coreServiceClient.register(request);
+    }
+
+    private User createNewUser(RegisterRequest registerRequest) {
         User user = new User();
-        user.setUsername(userRegisterRequest.getUsername());
+        user.setUsername(registerRequest.getUsername());
         user.setActive(true);
 
         user.addRole(getUserRole());
 
         Credential credential = new Credential();
-        credential.setPasswordHash(passwordEncoder.encode(userRegisterRequest.getPassword()));
-        credential.setEmail(userRegisterRequest.getEmail());
+        credential.setPasswordHash(passwordEncoder.encode(registerRequest.getPassword()));
+        credential.setEmail(registerRequest.getEmail());
         credential.setUser(user);
+
+        user.setCredential(credential);
 
         return user;
     }
@@ -77,9 +90,9 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponse login(UserLoginRequest userLoginRequest) {
-        User user = userRepository.findByUsername(userLoginRequest.getUsername()).orElse(null);
-        if (user == null || !passwordEncoder.matches(userLoginRequest.getPassword(), user.getCredential().getPasswordHash())) {
+    public AuthResponse login(LoginRequest loginRequest) {
+        User user = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
+        if (user == null || !passwordEncoder.matches(loginRequest.getPassword(), user.getCredential().getPasswordHash())) {
             throw new ServiceException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         }
 
@@ -92,16 +105,10 @@ public class AuthService {
 
     @Transactional
     public void logout(LogoutRequest logoutRequest, UserPrincipal userPrincipal) {
-        UUID tokenUuid = UUID.fromString(logoutRequest.getRefreshToken());
-
-        RefreshToken refreshToken = refreshTokenRepository.findById(tokenUuid)
-                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Refresh token not found"));
-
-        if (!refreshToken.getUser().getId().equals(userPrincipal.getId())) {
-            throw new ServiceException(HttpStatus.FORBIDDEN, "Access denied: You cannot revoke someone else's token");
-        }
-
-        refreshTokenRepository.delete(refreshToken);
+        refreshTokenService.revokeForUser(
+                UUID.fromString(logoutRequest.getRefreshToken()),
+                userPrincipal.getId()
+        );
     }
 
     @Transactional

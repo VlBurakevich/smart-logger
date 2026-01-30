@@ -11,20 +11,20 @@ import java.time.Duration;
 public class RedisService {
     private final StringRedisTemplate redis;
 
-    private static final String PREFIX = "account:";
+    private static final String PREFIX = "apiKey:";
 
-    public boolean exists(String accountId) {
-        return Boolean.TRUE.equals(redis.hasKey(PREFIX + accountId));
+    public boolean exists(String apiKey) {
+        return Boolean.TRUE.equals(redis.hasKey(PREFIX + apiKey));
     }
 
-    public void save(String accountId, Duration ttl) {
-        redis.opsForValue().set(PREFIX + accountId, "1", ttl);
+    public void save(String apiKey, Duration ttl) {
+        redis.opsForValue().set(PREFIX + apiKey, "1", ttl);
     }
 
-    public void extendTtl(String accountId, Duration ttl) {
-        if (accountId == null || accountId.isBlank()) {
+    public void extendTtl(String apiKey, Duration ttl) {
+        if (apiKey == null || apiKey.isBlank()) {
             return;
         }
-        redis.expire(PREFIX + accountId, ttl);
+        redis.expire(PREFIX + apiKey, ttl);
     }
 }

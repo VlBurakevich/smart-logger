@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class RefreshTokenService {
+public class  RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -57,8 +57,15 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public void revoke(UUID tokenValue) {
-        refreshTokenRepository.deleteById(tokenValue);
+    public void revokeForUser(UUID tokenId, UUID userId) {
+        RefreshToken refreshToken = refreshTokenRepository.findById(tokenId)
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Refresh Token not found"));
+
+        if (!refreshToken.getUser().getId().equals(userId)) {
+            throw new ServiceException(HttpStatus.FORBIDDEN, "Access denied");
+        }
+
+        refreshTokenRepository.delete(refreshToken);
     }
 
     @Transactional

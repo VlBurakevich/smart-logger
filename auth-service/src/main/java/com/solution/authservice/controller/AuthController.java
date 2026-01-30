@@ -4,10 +4,11 @@ import com.solution.authservice.dto.request.LogoutRequest;
 import com.solution.authservice.dto.response.AuthResponse;
 import com.solution.authservice.dto.request.RefreshRequest;
 import com.solution.authservice.dto.response.RegisterResponse;
-import com.solution.authservice.dto.request.UserLoginRequest;
-import com.solution.authservice.dto.request.UserRegisterRequest;
+import com.solution.authservice.dto.request.LoginRequest;
+import com.solution.authservice.dto.request.RegisterRequest;
 import com.solution.authservice.security.UserPrincipal;
 import com.solution.authservice.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,21 +26,21 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(
-            @RequestBody UserRegisterRequest userRegisterRequest
+            @Valid @RequestBody RegisterRequest registerRequest
     ) {
-        return ResponseEntity.ok(authService.register(userRegisterRequest));
+        return ResponseEntity.ok(authService.register(registerRequest));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
-            @RequestBody UserLoginRequest userLoginRequest
+            @Valid @RequestBody LoginRequest loginRequest
     ) {
-        return ResponseEntity.ok(authService.login(userLoginRequest));
+        return ResponseEntity.ok(authService.login(loginRequest));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(
-            @RequestBody LogoutRequest logoutRequest,
+            @Valid @RequestBody LogoutRequest logoutRequest,
             @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
         authService.logout(logoutRequest, userPrincipal);
@@ -48,7 +49,7 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(
-            @RequestBody RefreshRequest refreshRequest
+            @Valid @RequestBody RefreshRequest refreshRequest
     ) {
         return ResponseEntity.ok(authService.refresh(refreshRequest));
     }

@@ -3,6 +3,7 @@ package com.solution.authservice.controller;
 import com.solution.authservice.dto.request.StatusUpdateRequest;
 import com.solution.authservice.dto.response.UserResponse;
 import com.solution.authservice.service.AdminService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +33,7 @@ public class AdminController {
     @PatchMapping("/{userId}/status")
     public ResponseEntity<Void> changeUserStatus(
             @PathVariable("userId") UUID userId,
-            @RequestBody StatusUpdateRequest statusUpdateRequest
+            @Valid @RequestBody StatusUpdateRequest statusUpdateRequest
     ) {
         adminService.updateStatus(userId, statusUpdateRequest);
         return ResponseEntity.noContent().build();

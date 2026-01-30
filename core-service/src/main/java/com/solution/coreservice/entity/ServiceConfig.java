@@ -22,10 +22,10 @@ import java.util.UUID;
 
 @Entity
 @Table(
-        name = "monitoring_settings",
+        name = "service_configs",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_monitoring_account_service",
+                        name = "uk_key_service_name",
                         columnNames = {"api_key_id", "service_name"}
                 )
         }
@@ -34,7 +34,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MonitoringSetting {
+public class ServiceConfig {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -71,7 +71,7 @@ public class MonitoringSetting {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MonitoringSetting that = (MonitoringSetting) o;
+        ServiceConfig that = (ServiceConfig) o;
         return id != null && id.equals(that.id);
     }
 

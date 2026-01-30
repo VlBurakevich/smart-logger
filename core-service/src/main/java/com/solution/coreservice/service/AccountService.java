@@ -2,6 +2,7 @@ package com.solution.coreservice.service;
 
 import com.solution.coreservice.dto.request.ApiKeyCreateRequest;
 import com.solution.coreservice.dto.request.RegisterRequest;
+import com.solution.coreservice.dto.request.StatusUpdateRequest;
 import com.solution.coreservice.dto.response.ApiKeyResponse;
 import com.solution.coreservice.entity.ApiKey;
 import com.solution.coreservice.entity.User;
@@ -72,7 +73,7 @@ public class AccountService {
             byte[] hashBytes = digest.digest(rawApiKey.getBytes(StandardCharsets.UTF_8));
             keyHash = Base64.getUrlEncoder().encodeToString(hashBytes);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-256 algorithm not supported", e);
+            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "SHA-256 algorithm not supported");
         }
 
         User user = userRepository.findById(userId)
@@ -80,7 +81,7 @@ public class AccountService {
 
         ApiKey apiKey = ApiKey.builder()
                 .user(user)
-                .keyValue(keyHash)
+                .keyValueHash(keyHash)
                 .name(apiKeyCreateRequest.getName())
                 .description(apiKeyCreateRequest.getDescription())
                 .build();
@@ -98,5 +99,26 @@ public class AccountService {
         }
 
         apiKeyRepository.delete(key);
+    }
+
+    public boolean exists(String apiKeyHash) {
+        return apiKeyRepository.existsApiKeyByKeyValueHash(apiKeyHash);
+    }
+
+    @Transactional
+    public void setIsActive(UUID userId, StatusUpdateRequest statusUpdateRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "User not found"));
+
+        user.setIsActive(statusUpdateRequest.getIsActive());
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteAccount(UUID userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ServiceException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        userRepository.deleteById(userId);
     }
 }

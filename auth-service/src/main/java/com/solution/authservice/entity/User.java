@@ -1,5 +1,6 @@
 package com.solution.authservice.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -33,9 +34,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "account_id", nullable = false, unique = true)
-    private UUID accountId;
-
     @Column(name = "is_active", columnDefinition = "boolean default true")
     private boolean isActive = true;
 
@@ -46,7 +44,7 @@ public class User {
     @Column(name = "created_at", columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT NOW()")
     private OffsetDateTime createdAt;
 
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, optional = true)
+    @OneToOne(mappedBy = "user", optional = true, cascade = CascadeType.ALL)
     private Credential credential;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
@@ -77,7 +75,6 @@ public class User {
     public String toString() {
         return "User {" +
                 "id=" + id +
-                ", accountId=" + accountId +
                 ", isActive=" + isActive +
                 ", username='" + username + '\'' +
                 ", createdAt=" + createdAt +

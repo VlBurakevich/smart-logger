@@ -24,8 +24,8 @@ import java.util.UUID;
     name = "api_keys",
     indexes = {
         @Index(
-            name = "idx_api_keys_value",
-            columnList = "key_value"
+            name = "idx_api_keys_value_hash",
+            columnList = "key_value_hash"
         )
     }
 )
@@ -44,8 +44,8 @@ public class ApiKey {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "key_value", nullable = false, unique = true)
-    private String keyValue;
+    @Column(name = "key_value_hash", nullable = false, unique = true)
+    private String keyValueHash;
 
     @Column(name = "name")
     private String name;
@@ -74,7 +74,7 @@ public class ApiKey {
     public String toString() {
         return "ApiKey{" +
                 "id=" + id +
-                ", keyValue=" + keyValue +
+                ", keyValue=" + keyValueHash +
                 ", name=" + name +
                 ", createdAt=" + createdAt +
                 "}";

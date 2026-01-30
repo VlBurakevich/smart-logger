@@ -20,7 +20,7 @@ public record UserPrincipal(
 
     public static UserPrincipal from(User user) {
         Set<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toUnmodifiableSet());
 
         String password = null;

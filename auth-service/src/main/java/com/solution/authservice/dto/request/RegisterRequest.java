@@ -1,18 +1,20 @@
 package com.solution.authservice.dto.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserLoginRequest {
+public class RegisterRequest {
     @NotBlank(message = "Username cannot be empty")
     private String username;
+
+    @Email(message = "Invalid email address")
+    private String email;
 
     @NotBlank(message = "Password cannot be empty")
     private String password;

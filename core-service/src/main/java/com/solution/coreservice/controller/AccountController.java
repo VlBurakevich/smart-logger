@@ -3,6 +3,7 @@ package com.solution.coreservice.controller;
 import com.solution.coreservice.dto.request.ApiKeyCreateRequest;
 import com.solution.coreservice.dto.response.ApiKeyResponse;
 import com.solution.coreservice.service.AccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,7 +35,7 @@ public class AccountController {
     @PostMapping("/keys")
     public ResponseEntity<ApiKeyResponse> createNewKey(
         @RequestHeader("X-User-Id") UUID userId,
-        @RequestBody ApiKeyCreateRequest keyRequest
+        @Valid @RequestBody ApiKeyCreateRequest keyRequest
     ) {
         return ResponseEntity.ok(accountService.createNewKey(keyRequest, userId));
     }

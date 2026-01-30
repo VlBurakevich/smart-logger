@@ -46,7 +46,7 @@ public class Snapshot {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "monitoring_setting_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MonitoringSetting monitoringSetting;
+    private ServiceConfig serviceConfig;
 
     @Column(name = "snapshot_time", nullable = false)
     private OffsetDateTime snapshotTime;

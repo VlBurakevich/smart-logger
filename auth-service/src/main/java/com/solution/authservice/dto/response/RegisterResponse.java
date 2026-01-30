@@ -1,15 +1,13 @@
 package com.solution.authservice.dto.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.List;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterResponse {
@@ -19,5 +17,6 @@ public class RegisterResponse {
     private UUID userId;
     private String username;
     private String email;
+    private Boolean isActive;
     private List<String> roles;
 }

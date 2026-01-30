@@ -2,6 +2,12 @@ app:
   redis:
     account-ttl: 10m
 
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.cloud.gateway.mvc: DEBUG
+
 jwt:
   secret:
     key: ls2cNJbDUq2wly1Q+84QqvXcdP3iasWTj0XP0sYmKP0=
@@ -22,12 +28,21 @@ spring:
 
   cloud:
     gateway:
-      mvc:
-        routes:
-          - id: ingestion_api_route
-            uri: lb://ingestion-service
-            predicates:
-            - Path=/api/ingestion/**
+      server:
+        webmvc:
+          routes:
+            - id: auth_api_route
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/**
+            - id: ingestion_api_route
+              uri: lb://ingestion-service
+              predicates:
+                - Path=/api/**
+            - id: core_api_route
+              uri: lb://core-service
+              predicates:
+                - Path=/api/**
 
 eureka:
   client:

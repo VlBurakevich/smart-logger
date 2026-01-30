@@ -1,7 +1,7 @@
 CREATE TABLE reports
 (
     id                     uuid PRIMARY KEY,
-    monitoring_settings_id uuid REFERENCES monitoring_settings (id),
+    service_config_id uuid REFERENCES service_configs (id),
     content                jsonb,
     error_count            INTEGER,
     anomaly_count          INTEGER,

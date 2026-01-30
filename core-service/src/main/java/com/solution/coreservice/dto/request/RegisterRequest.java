@@ -1,20 +1,19 @@
 package com.solution.coreservice.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterRequest {
 
-    @NotBlank(message = "user id cannot be empty")
+    @NotNull(message = "user id cannot be empty")
     private UUID id;
 
     @NotBlank(message = "username cannot be empty")

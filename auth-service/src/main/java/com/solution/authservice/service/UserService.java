@@ -26,7 +26,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public UserResponse getUserInfo(UUID id) {
-        User user = userRepository.findById(id)
+        User user = userRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "User not found"));
 
         return userResponseMapper.toResponse(user);

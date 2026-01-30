@@ -4,6 +4,7 @@ import com.solution.authservice.dto.request.ChangePasswordRequest;
 import com.solution.authservice.dto.response.UserResponse;
 import com.solution.authservice.security.UserPrincipal;
 import com.solution.authservice.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,7 +30,7 @@ public class UserController {
 
     @PatchMapping("/change-password")
     public ResponseEntity<Void> changePassword(
-            @RequestBody ChangePasswordRequest request,
+            @Valid @RequestBody ChangePasswordRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
         userService.changePassword(userPrincipal.getId(), request);

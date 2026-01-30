@@ -1,6 +1,6 @@
-package com.solution.authservice.config;
+package com.solution.authservice.security;
 
-import com.solution.authservice.security.JwtAuthFilter;
+import com.solution.authservice.logging.LoggingFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,29 +21,27 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     private static final String[] PUBLIC_PATHS = {
-            "/swagger-ui/**",
-            "/v3/api-docs/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
     };
 
     private static final String[] ANONYMOUS_PATHS = {
-            "/api/users/login",
-            "/api/users/register",
+            "/api/auth/register",
+            "/api/auth/login",
+            "/api/auth/refresh"
     };
 
     private static final String[] AUTHENTICATED_PATHS = {
-            "/api/discounts/**",
-            "/api/vehicle_models/**",
-            "/api/vehicles/**",
-            "/api/rentals/**",
-            "/api/tariffs/**",
-            "/api/transport-types/**",
-            "/api/users/**",
-            "/api/rental-points/**"
+            "/api/auth/logout",
+            "/api/user/**"
+    };
+
+    private static final String[] ADMIN_PATHS = {
+            "/api/admin/**"
     };
 
     private final UserDetailsService userDetailsService;
     private final JwtAuthFilter authFilter;
+    private final LoggingFilter loggingFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -53,9 +51,11 @@ public class SecurityConfig {
                         .requestMatchers(PUBLIC_PATHS).permitAll()
                         .requestMatchers(ANONYMOUS_PATHS).anonymous()
                         .requestMatchers(AUTHENTICATED_PATHS).authenticated()
+                        .requestMatchers(ADMIN_PATHS).hasAuthority("ROLE_ADMIN")
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(loggingFilter, authFilter.getClass());
 
         return http.build();
     }

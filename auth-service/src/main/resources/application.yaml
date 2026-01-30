@@ -1,6 +1,12 @@
 server:
   port: 8080
 
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+
 jwt:
   secret:
     key: ls2cNJbDUq2wly1Q+84QqvXcdP3iasWTj0XP0sYmKP0=
@@ -9,6 +15,7 @@ jwt:
   refresh-token:
     lifetime: 7d
     cleanup-interval: 1h
+
 spring:
   application:
     name: auth-service
@@ -34,7 +41,6 @@ spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
     enabled: true
-
 
 eureka:
   client:
