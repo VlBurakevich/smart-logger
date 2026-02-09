@@ -10,7 +10,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServiceConfigResponse {
+public class MonitoringTaskResponse {
     private UUID id;
     private UUID apiKeyId;
     private String serviceName;

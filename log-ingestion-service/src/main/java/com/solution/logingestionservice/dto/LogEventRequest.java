@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.OffsetDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,7 +20,7 @@ public class LogEventRequest {
     @Size(max = 65535)
     private String message;
     @NotBlank
-    private String serviceName;
+    private String loggerName;
     @NotEmpty
-    private long timestamp;
+    private OffsetDateTime timestamp;
 }

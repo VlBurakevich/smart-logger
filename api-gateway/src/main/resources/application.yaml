@@ -2,12 +2,6 @@ app:
   redis:
     account-ttl: 10m
 
-logging:
-  level:
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.cloud.gateway.mvc: DEBUG
-
 jwt:
   secret:
     key: ls2cNJbDUq2wly1Q+84QqvXcdP3iasWTj0XP0sYmKP0=

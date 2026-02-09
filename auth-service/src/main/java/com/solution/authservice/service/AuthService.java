@@ -16,7 +16,6 @@ import com.solution.authservice.exception.ServiceException;
 import com.solution.authservice.security.JwtService;
 import com.solution.authservice.security.UserPrincipal;
 import com.solution.authservice.mapper.RegisterResponseMapper;
-import com.solution.authservice.repository.RefreshTokenRepository;
 import com.solution.authservice.repository.RoleRepository;
 import com.solution.authservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

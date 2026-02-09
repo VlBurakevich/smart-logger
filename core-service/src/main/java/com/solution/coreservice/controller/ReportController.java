@@ -4,6 +4,7 @@ import com.solution.coreservice.dto.response.ReportResponse;
 import com.solution.coreservice.dto.response.ReportShortResponse;
 import com.solution.coreservice.service.ReportService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,38 +14,36 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/reports")
 public class ReportController {
-
     private final ReportService reportService;
 
-    @GetMapping("/{reportId}")
+    @GetMapping("/{id}")
     public ResponseEntity<ReportResponse> getReport(
-            @RequestHeader("X-User-Id") UUID userId,
-            @PathVariable String reportId
+            @RequestHeader("User-Id") UUID userId,
+            @PathVariable UUID id
     ) {
-        return ResponseEntity.ok(reportService.getReport(reportId, userId));
+        return ResponseEntity.ok(reportService.getReport(id, userId));
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<ReportShortResponse>> getAllReport(
-            @RequestHeader("X-User-Id") UUID userId,
+    public ResponseEntity<Page<ReportShortResponse>> getAllReport(
+            @RequestHeader("User-Id") UUID userId,
             Pageable pageable
     ) {
         return ResponseEntity.ok(reportService.getAllReport(pageable, userId));
     }
 
-    @DeleteMapping("/{reportId}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReportData(
-            @RequestHeader("X-User-Id") UUID userId,
-            @PathVariable String reportId
+            @RequestHeader("User-Id") UUID userId,
+            @PathVariable UUID id
     ) {
-        reportService.deleteReport(reportId, userId);
+        reportService.deleteReport(id, userId);
         return ResponseEntity.noContent().build();
     }
 }

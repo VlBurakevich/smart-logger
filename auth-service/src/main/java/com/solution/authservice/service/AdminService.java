@@ -8,7 +8,6 @@ import com.solution.authservice.exception.ServiceException;
 import com.solution.authservice.mapper.UserResponseMapper;
 import com.solution.authservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminService {
@@ -46,7 +44,6 @@ public class AdminService {
         if (!userRepository.existsById(userId)) {
             throw new ServiceException(HttpStatus.NOT_FOUND, "Failed delete user");
         }
-        log.info("Send feignClient Delete user {}", userId);
         coreServiceClient.deleteUserById(userId);
         userRepository.deleteById(userId);
     }

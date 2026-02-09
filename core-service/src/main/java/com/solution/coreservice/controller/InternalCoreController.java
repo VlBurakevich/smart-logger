@@ -2,13 +2,14 @@ package com.solution.coreservice.controller;
 
 import com.solution.coreservice.dto.request.RegisterRequest;
 import com.solution.coreservice.dto.request.StatusUpdateRequest;
-import com.solution.coreservice.service.AccountService;
+import com.solution.coreservice.service.ApiKeyService;
+import com.solution.coreservice.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,38 +24,38 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/internal")
 public class InternalCoreController {
-    private final AccountService accountService;
+    private final ApiKeyService apiKeyService;
+    private final UserService userService;
 
     @GetMapping("/apiKey/exists")
     public ResponseEntity<Boolean> apiKeyExists(
-            @RequestHeader("X-Api-Key-Hash") String apiKeyHash
+            @RequestHeader("Api-Key-Hash") String apiKeyHash
     ){
-        boolean exists = accountService.exists(apiKeyHash);
-        return ResponseEntity.ok(exists);
+        return ResponseEntity.ok(apiKeyService.exists(apiKeyHash));
     }
 
     @PostMapping("/account/register")
     public ResponseEntity<Void> register(
-            @Valid @RequestBody RegisterRequest registerRequest
+            @RequestBody @Valid RegisterRequest request
     ){
-        accountService.register(registerRequest);
-        return ResponseEntity.ok().build();
+        userService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PutMapping("/account/{userId}/status")
+    @PutMapping("/account/{id}/status")
     public ResponseEntity<Void> setIsActive(
-            @PathVariable UUID userId,
-            @Valid @RequestBody StatusUpdateRequest statusUpdateRequest
+            @PathVariable UUID id,
+            @RequestBody @Valid StatusUpdateRequest request
     ) {
-        accountService.setIsActive(userId, statusUpdateRequest);
-        return ResponseEntity.ok().build();
+        userService.setIsActive(id, request);
+        return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/account/{userId}")
+    @DeleteMapping("/account/{id}")
     public ResponseEntity<Void> deleteAccountById(
-            @PathVariable UUID userId
+            @PathVariable UUID id
     ) {
-        accountService.deleteAccount(userId);
+        userService.deleteAccount(id);
         return ResponseEntity.ok().build();
     }
 }

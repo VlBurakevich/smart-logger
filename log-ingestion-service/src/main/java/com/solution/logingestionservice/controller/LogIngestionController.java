@@ -22,10 +22,11 @@ public class LogIngestionController {
 
     @PostMapping("/batch")
     public ResponseEntity<Void> ingestBatchLog(
-            @Valid @RequestBody List<LogEventRequest> logEvents,
-            @RequestHeader("X-Api-Key") String apiKey
+            @RequestBody @Valid List<LogEventRequest> logEvents,
+            @RequestHeader("Api-Key-Hash") String apiKeyHash,
+            @RequestHeader("Service-Name") String serviceName
     ) {
-        ingestionService.ingest(logEvents, apiKey);
+        ingestionService.ingest(logEvents, apiKeyHash, serviceName);
         return ResponseEntity.accepted().build();
     }
 }

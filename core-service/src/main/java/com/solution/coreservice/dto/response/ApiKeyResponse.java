@@ -11,7 +11,7 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 public class ApiKeyResponse {
     private String id;
-    private String apiKey;
+    private String rawApiKey;
     private String name;
     private String description;
     private OffsetDateTime createdAt;

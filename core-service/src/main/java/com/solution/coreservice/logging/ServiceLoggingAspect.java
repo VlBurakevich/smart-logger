@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class ServiceLoggingAspect {
-    @Around("execution(* com.solution.coreservice.service.*.*(..))")
+    @Around("execution(* com.solution.coreservice.service..*.*(..)) || execution(* com.solution.coreservice.scheduler..*.*(..))")
     public Object logMethods(final ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().toShortString();
         Object[] args = joinPoint.getArgs();

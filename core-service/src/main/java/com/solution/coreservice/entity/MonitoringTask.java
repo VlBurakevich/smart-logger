@@ -2,6 +2,8 @@ package com.solution.coreservice.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +25,7 @@ import java.util.UUID;
 
 @Entity
 @Table(
-        name = "service_configs",
+        name = "monitoring_tasks",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uk_key_service_name",
@@ -34,7 +37,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServiceConfig {
+public class MonitoringTask {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -47,8 +50,12 @@ public class ServiceConfig {
     @Column(name = "service_name", length = 100, nullable = false)
     private String serviceName;
 
-    @Column(name = "check_min")
-    private Integer checkMin;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", columnDefinition = "task_status", nullable = false)
+    private TaskStatus status = TaskStatus.READY;
+
+    @Column(name = "check_sec")
+    private Integer checkSec;
 
     @Column(name = "report_hr")
     private Integer reportHr;
@@ -67,11 +74,15 @@ public class ServiceConfig {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
+    @Version
+    @Column(name = "version")
+    private Integer version;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ServiceConfig that = (ServiceConfig) o;
+        MonitoringTask that = (MonitoringTask) o;
         return id != null && id.equals(that.id);
     }
 
@@ -85,7 +96,8 @@ public class ServiceConfig {
         return "MonitoringSetting{" +
                 "id=" + id +
                 ", serviceName=" + serviceName +
-                ", checkMin=" + checkMin +
+                ", status=" + status +
+                ", checkMin=" + checkSec +
                 ", reportHr=" + reportHr +
                 ", lastCheckedAt=" + lastCheckedAt +
                 ", lastReportAt=" + lastReportAt +

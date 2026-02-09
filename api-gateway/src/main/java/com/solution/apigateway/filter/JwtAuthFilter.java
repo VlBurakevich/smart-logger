@@ -63,9 +63,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                request.setAttribute("X-User-Id", userId.toString());
-                // TODO add if some serwice (not auth) need authorities)
-                //  request.setAttribute("X-Authorities", roles);
+                request.setAttribute("User-Id", userId.toString());
             }
         } catch (Exception e) {
             SecurityContextHolder.clearContext();

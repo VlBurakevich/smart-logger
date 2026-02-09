@@ -43,3 +43,18 @@ eureka:
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${random.value}
+
+
+victorialogs:
+  url: http://victorialogs:9428/insert/jsonline
+  batch:
+    limit: 100
+
+app:
+  scheduler:
+    snapshot:
+      rate-ms: 50000
+      batch-size: 25
+    report:
+      rate-ms: 500000
+      batch-size: 25

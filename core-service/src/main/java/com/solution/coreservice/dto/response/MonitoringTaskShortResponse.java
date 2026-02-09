@@ -9,7 +9,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServiceConfigShortResponse {
+public class MonitoringTaskShortResponse {
     private UUID id;
     private String serviceName;
     private Integer checkMin;

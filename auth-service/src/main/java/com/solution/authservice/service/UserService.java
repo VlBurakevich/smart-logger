@@ -38,11 +38,11 @@ public class UserService {
                 .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Credential not found"));
 
         if (!passwordEncoder.matches(request.getOldPassword(), credential.getPasswordHash())) {
-            throw new ServiceException(HttpStatus.FORBIDDEN, "Old password not match");
+            throw new ServiceException(HttpStatus.BAD_REQUEST, "Old password not match");
         }
 
         if (passwordEncoder.matches(request.getNewPassword(), credential.getPasswordHash())) {
-            throw new ServiceException(HttpStatus.FORBIDDEN, "New password must be different");
+            throw new ServiceException(HttpStatus.BAD_REQUEST, "New password must be different");
         }
 
         String newHash = passwordEncoder.encode(request.getNewPassword());

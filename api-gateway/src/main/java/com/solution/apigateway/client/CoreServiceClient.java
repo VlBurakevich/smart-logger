@@ -8,5 +8,5 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface CoreServiceClient {
 
     @GetMapping("/api/internal/apiKey/exists")
-    boolean apiKeyExists(@RequestHeader("X-Api-Key-Hash") String apiKey);
+    boolean apiKeyExists(@RequestHeader("Api-Key-Hash") String apiKey);
 }

@@ -4,10 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServiceConfigRequest {
+//TODO Create annotation @AtLeastOneNotNull
+public class MonitoringTaskUpdateRequest {
+
+    private UUID apiKeyId;
 
     private String serviceName;
 

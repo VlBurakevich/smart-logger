@@ -1,10 +1,14 @@
 package com.solution.coreservice.controller;
 
 import com.solution.coreservice.dto.request.ApiKeyCreateRequest;
+import com.solution.coreservice.dto.response.ApiKeyInfoResponse;
 import com.solution.coreservice.dto.response.ApiKeyResponse;
-import com.solution.coreservice.service.AccountService;
+import com.solution.coreservice.service.ApiKeyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,37 +19,38 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/accounts")
-public class AccountController {
-
-    private final AccountService accountService;
+public class ApiKeyController {
+    private final ApiKeyService apiKeyService;
 
     @GetMapping("/keys")
-    public ResponseEntity<List<ApiKeyResponse>> getUserKeys(
-        @RequestHeader("X-User-Id") UUID userId
+    public ResponseEntity<Page<ApiKeyInfoResponse>> getUserKeys(
+        @RequestHeader("User-Id") UUID userId,
+        Pageable pageable
     ) {
-        return ResponseEntity.ok(accountService.getUserKeys(userId));
+        return ResponseEntity.ok(apiKeyService.getUserKeys(userId, pageable));
     }
 
     @PostMapping("/keys")
     public ResponseEntity<ApiKeyResponse> createNewKey(
-        @RequestHeader("X-User-Id") UUID userId,
-        @Valid @RequestBody ApiKeyCreateRequest keyRequest
+        @RequestHeader("User-Id") UUID userId,
+        @RequestBody @Valid ApiKeyCreateRequest request
     ) {
-        return ResponseEntity.ok(accountService.createNewKey(keyRequest, userId));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(apiKeyService.createNewKey(userId, request));
     }
 
-    @DeleteMapping("/keys/{keyId}")
+    @DeleteMapping("/keys/{id}")
     public ResponseEntity<Void> deleteKey(
-        @RequestHeader("X-User-Id") UUID userId,
-        @PathVariable UUID keyId
+        @RequestHeader("User-Id") UUID userId,
+        @PathVariable UUID id
     ) {
-        accountService.deleteKey(userId, keyId);
+        apiKeyService.deleteKey(userId, id);
         return ResponseEntity.noContent().build();
     }
 }

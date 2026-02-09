@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,8 @@ public class ApiKeyValidationFilter extends OncePerRequestFilter {
     private final RedisService redisService;
     private final CoreServiceClient coreClient;
 
-    private static final String API_KEY_HEADER = "X-Api-Key";
+    private static final String API_KEY_HEADER = "Api-Key";
+    private static final String API_KEY_HASH_HEADER = "Api-Key-Hash";
 
     @Value("${app.redis.account-ttl:15m}")
     private Duration apiKeyTtl;
@@ -46,16 +48,22 @@ public class ApiKeyValidationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (!redisService.exists(apiKey)) {
-            if (!coreClient.apiKeyExists(apiKey)) {
+        String apiKeyHash = DigestUtils.sha256Hex(apiKey);
+
+        if (!redisService.exists(apiKeyHash)) {
+            if (!coreClient.apiKeyExists(apiKeyHash)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
-            redisService.save(apiKey, apiKeyTtl);
+            redisService.save(apiKeyHash, apiKeyTtl);
         } else {
-            redisService.extendTtl(apiKey, apiKeyTtl);
+            redisService.extendTtl(apiKeyHash, apiKeyTtl);
         }
 
-        filterChain.doFilter(request, response);
+        HeaderModifierWrapper wrapped = new HeaderModifierWrapper(request);
+
+        wrapped.replace(API_KEY_HEADER, API_KEY_HASH_HEADER,  apiKeyHash);
+
+        filterChain.doFilter(wrapped, response);
     }
 }

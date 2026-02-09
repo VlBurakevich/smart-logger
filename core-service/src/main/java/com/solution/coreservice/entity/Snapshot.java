@@ -44,9 +44,9 @@ public class Snapshot {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "monitoring_setting_id", nullable = false)
+    @JoinColumn(name = "monitoring_task_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private ServiceConfig serviceConfig;
+    private MonitoringTask monitoringTask;
 
     @Column(name = "snapshot_time", nullable = false)
     private OffsetDateTime snapshotTime;
