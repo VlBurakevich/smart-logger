@@ -184,7 +184,7 @@ services:
       EUREKA_URL: http://eureka-service:8761/eureka/
 
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_TOPIC_INPUT_LOG: logs.raw
+      KAFKA_TOPIC_INFERENCE_SNAPSHOT_REQUEST: inference.snapshot.request
       KAFKA_TOPIC_OUTPUT_LOG: logs.processed
       KAFKA_TOPIC_INPUT_RESULT: logs.results
 
@@ -229,12 +229,15 @@ services:
         condition: service_healthy
       eureka-service:
         condition: service_healthy
+    env_file:
+      - .env
     environment:
       EUREKA_URL: http://eureka-service:8761/eureka/
 
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY}
+
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_TOPIC_INPUT: logs.processed
-      KAFKA_TOPIC_OUTPUT: logs.results
+      KAFKA_TOPIC_INFERENCE_SNAPSHOT_RESULT: inference.snapshot.result
       KAFKA_CONSUMER_GROUP_ID: model-inference-group
       SERVICE_NAME: model-inference
       SPRING_PROFILES_ACTIVE: docker

@@ -33,7 +33,11 @@ public class SecurityConfig {
     private static final String[] AUTHENTICATED_PATHS = {
             "/api/auth/logout",
             "/api/admin/**",
-            "/api/user/**"
+            "/api/user/**",
+            "/api/keys/**",
+            "/api/monitoring-tasks/**",
+            "/api/reports/**",
+            "/api/snapshots/**"
     };
 
     private final JwtAuthFilter authFilter;

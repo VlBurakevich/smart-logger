@@ -3,6 +3,8 @@ package com.solution.coreservice.entity;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,7 +23,6 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.type.SqlTypes;
 
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -51,12 +52,16 @@ public class Snapshot {
     @Column(name = "snapshot_time", nullable = false)
     private OffsetDateTime snapshotTime;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private SnapshotStatus status = SnapshotStatus.PENDING;
+
     @Column(name = "errors", columnDefinition = "JSONB")
     @JdbcTypeCode(SqlTypes.JSON)
     private JsonNode errors;
 
-    @Column(name = "max_severity", precision = 5, scale = 2)
-    private BigDecimal maxSeverity;
+    @Column(name = "max_severity")
+    private Double maxSeverity;
 
     @Column(name = "anomalies", columnDefinition = "JSONB")
     @JdbcTypeCode(SqlTypes.JSON)
@@ -65,11 +70,8 @@ public class Snapshot {
     @Column(name = "ai_description", columnDefinition = "TEXT")
     private String aiDescription;
 
-    @Column(name = "ai_score", precision = 5, scale = 2)
-    private BigDecimal aiScore;
-
-    @Column(name = "raw_snippet", columnDefinition = "TEXT")
-    private String rawSnippet;
+    @Column(name = "ai_score")
+    private Double aiScore;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -92,13 +94,13 @@ public class Snapshot {
     public String toString() {
         return "Snapshot{" +
                 "id=" + id +
-                "timestamp=" + snapshotTime +
+                ", snapshotTime=" + snapshotTime +
+                ", status=" + status +
                 ", errors=" + errors +
                 ", maxSeverity=" + maxSeverity +
                 ", anomalies=" + anomalies +
                 ", aiDescription=" + aiDescription +
                 ", aiScore=" + aiScore +
-                ", rawSnippet=" + rawSnippet +
                 ", createdAt=" + createdAt +
                 "}";
     }

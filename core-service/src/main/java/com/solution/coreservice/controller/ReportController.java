@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/reports")
+@RequestMapping("/api/reports")
 public class ReportController {
     private final ReportService reportService;
 

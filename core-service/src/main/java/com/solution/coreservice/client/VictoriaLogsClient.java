@@ -1,7 +1,7 @@
 package com.solution.coreservice.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.solution.coreservice.dto.messaging.LogResponse;
+import com.solution.coreservice.dto.messaging.LogEntry;
 import com.solution.coreservice.entity.MonitoringTask;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class VictoriaLogsClient {
     private final RestClient victoriaRestClient;
     private final ObjectMapper objectMapper;
 
-    public List<LogResponse> fetchLogs(MonitoringTask task, int limit) {
+    public List<LogEntry> fetchLogs(MonitoringTask task, int limit) {
         OffsetDateTime fromTime = task.getLastCheckedAt() != null
                 ? task.getLastCheckedAt()
                 : OffsetDateTime.now(ZoneOffset.UTC);
@@ -65,9 +65,9 @@ public class VictoriaLogsClient {
                 });
     }
 
-    private LogResponse parseLine(String line) {
+    private LogEntry parseLine(String line) {
         try {
-            return objectMapper.readValue(line, LogResponse.class);
+            return objectMapper.readValue(line, LogEntry.class);
         } catch (Exception e) {
             log.error("Failed to parse log line: {}", line, e);
             return null;

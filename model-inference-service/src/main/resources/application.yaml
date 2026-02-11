@@ -3,7 +3,25 @@ spring:
     name: model-inference-service
   ai:
     mistralai:
-      api-key: 2OswxziTlWIK8rbPINVqoAAYnmC7D71W
+      api-key: ${MISTRAL_API_KEY}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    listener:
+      concurrency: 3
+      ack-mode: manual_immediate
+
+app:
+  kafka:
+    inference-result: ${KAFKA_TOPIC_INFERENCE_SNAPSHOT_RESULT:inference.snapshot.result}
 
 eureka:
   client:

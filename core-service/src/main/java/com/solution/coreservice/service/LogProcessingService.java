@@ -1,10 +1,10 @@
 package com.solution.coreservice.service;
 
 import com.solution.coreservice.client.VictoriaLogsClient;
-import com.solution.coreservice.dto.messaging.InferenceRequest;
-import com.solution.coreservice.dto.messaging.LogResponse;
+import com.solution.coreservice.dto.messaging.InferenceSnapshotRequest;
+import com.solution.coreservice.dto.messaging.LogEntry;
 import com.solution.coreservice.entity.MonitoringTask;
-import com.solution.coreservice.messaging.inference.InferenceProducer;
+import com.solution.coreservice.messaging.inference.InferenceSnapshotProducer;
 import com.solution.coreservice.repository.MonitoringTaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,17 +24,17 @@ public class LogProcessingService {
 
     private final VictoriaLogsClient victoriaLogsClient;
     private final MonitoringTaskRepository monitoringTaskRepository;
-    private final InferenceProducer inferenceProducer;
+    private final InferenceSnapshotProducer inferenceSnapshotProducer;
 
     public void processSnapshot(MonitoringTask task) {
-        List<LogResponse> logs = victoriaLogsClient.fetchLogs(task, limit);
+        List<LogEntry> logs = victoriaLogsClient.fetchLogs(task, limit);
         if (logs.isEmpty()) {
             task.setLastCheckedAt(OffsetDateTime.now(ZoneOffset.UTC));
             monitoringTaskRepository.save(task);
             return;
         }
 
-        InferenceRequest request = new InferenceRequest(
+        InferenceSnapshotRequest request = new InferenceSnapshotRequest(
                 task.getId(),
                 task.getServiceName(),
                 task.getApiKey().getKeyValueHash(),
@@ -42,7 +42,7 @@ public class LogProcessingService {
                 logs
         );
 
-        inferenceProducer.sendToSnapshot(request);
+        inferenceSnapshotProducer.sendToSnapshot(request);
     }
 
     public void processReport(MonitoringTask task) {

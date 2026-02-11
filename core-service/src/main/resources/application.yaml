@@ -51,6 +51,9 @@ victorialogs:
     limit: 100
 
 app:
+  kafka:
+    inference-request: ${KAFKA_TOPIC_INFERENCE_SNAPSHOT_REQUEST:inference.snapshot.request}
+
   scheduler:
     snapshot:
       rate-ms: 50000
