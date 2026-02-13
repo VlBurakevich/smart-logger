@@ -12,12 +12,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
@@ -26,6 +26,7 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Entity
@@ -76,7 +77,6 @@ public class Snapshot {
     @Column(name = "ai_score")
     private Double aiScore;
 
-    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
@@ -106,5 +106,10 @@ public class Snapshot {
                 ", aiScore=" + aiScore +
                 ", createdAt=" + createdAt +
                 "}";
+    }
+
+    @PrePersist
+    protected void onCreate()  {
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
     }
 }

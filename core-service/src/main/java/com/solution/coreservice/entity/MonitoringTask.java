@@ -19,9 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcType;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.OffsetDateTime;
@@ -75,7 +73,6 @@ public class MonitoringTask {
     @Column(name = "created_at", updatable = false, nullable = false)
     private OffsetDateTime createdAt;
 
-    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 

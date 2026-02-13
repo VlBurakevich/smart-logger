@@ -3,12 +3,12 @@ package com.solution.notificationservice.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.OffsetDateTime;
@@ -34,7 +34,6 @@ public class TelegramChatBinding {
     @Column(name = "first_name")
     private String firstName;
 
-    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
@@ -65,5 +64,10 @@ public class TelegramChatBinding {
                 ", createdAt=" + createdAt +
                 ", lastNotificationAt" + lastNotificationAt +
                 "}";
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = OffsetDateTime.now();
     }
 }

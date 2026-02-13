@@ -12,6 +12,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +21,13 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -44,7 +51,7 @@ public class User {
     @Column(name = "created_at", columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT NOW()")
     private OffsetDateTime createdAt;
 
-    @OneToOne(mappedBy = "user", optional = true, cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Credential credential;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
@@ -87,5 +94,10 @@ public class User {
 
     public void removeRole(Role role) {
         roles.remove(role);
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt =  OffsetDateTime.now(ZoneOffset.UTC);
     }
 }

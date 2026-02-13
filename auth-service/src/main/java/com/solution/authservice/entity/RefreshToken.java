@@ -8,16 +8,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Entity
@@ -40,7 +41,6 @@ public class RefreshToken {
     @Column(name = "expires_at", nullable = false)
     private OffsetDateTime expiresAt;
 
-    @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)
     private OffsetDateTime createdAt;
 
@@ -68,5 +68,10 @@ public class RefreshToken {
 
     public boolean isExpired() {
         return OffsetDateTime.now().isAfter(expiresAt);
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
     }
 }

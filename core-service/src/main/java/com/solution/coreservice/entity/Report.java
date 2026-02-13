@@ -6,13 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Entity
@@ -45,7 +45,6 @@ public class Report {
     @Column(name = "summary", columnDefinition = "TEXT")
     private String summary;
 
-    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
@@ -72,5 +71,10 @@ public class Report {
                 ", summary=" +  summary +
                 ", createdAt=" + createdAt +
                 "}";
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
     }
 }

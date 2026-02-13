@@ -57,7 +57,6 @@ public class Credential {
         return "Credential {" +
                 "userId=" + userId +
                 ", email=" + email +
-                ", passwordHash="+ passwordHash +
                 "}";
     }
 }
