@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "core-service")
 public interface CoreServiceClient {
 
-    @GetMapping("/api/internal/apiKey/exists")
+    @GetMapping("/api/core/internal/apiKey/exists")
     boolean apiKeyExists(@RequestHeader("Api-Key-Hash") String apiKey);
 }

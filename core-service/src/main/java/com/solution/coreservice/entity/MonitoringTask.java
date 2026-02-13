@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
@@ -18,9 +20,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Entity
@@ -52,6 +57,7 @@ public class MonitoringTask {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", columnDefinition = "task_status", nullable = false)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private TaskStatus status = TaskStatus.READY;
 
     @Column(name = "check_sec")
@@ -66,7 +72,6 @@ public class MonitoringTask {
     @Column(name = "last_report_at")
     private OffsetDateTime lastReportAt;
 
-    @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)
     private OffsetDateTime createdAt;
 
@@ -104,5 +109,16 @@ public class MonitoringTask {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 "}";
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+        this.updatedAt = OffsetDateTime.now(ZoneOffset.UTC);
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = OffsetDateTime.now(ZoneOffset.UTC);
     }
 }

@@ -6,6 +6,11 @@ jwt:
   secret:
     key: ls2cNJbDUq2wly1Q+84QqvXcdP3iasWTj0XP0sYmKP0=
 
+logging:
+  level:
+    com.solution.apigateway: DEBUG
+    org.springframework.cloud.gateway: TRACE
+
 server:
   port: 8080
 
@@ -20,24 +25,6 @@ spring:
       connect-timeout: 500ms
       timeout: 500ms
 
-  cloud:
-    gateway:
-      server:
-        webmvc:
-          routes:
-            - id: auth_api_route
-              uri: lb://auth-service
-              predicates:
-                - Path=/api/**
-            - id: ingestion_api_route
-              uri: lb://ingestion-service
-              predicates:
-                - Path=/api/**
-            - id: core_api_route
-              uri: lb://core-service
-              predicates:
-                - Path=/api/**
-
 eureka:
   client:
     fetch-registry: true
@@ -49,3 +36,4 @@ eureka:
     prefer-ip-address: true
     hostname: api-gateway
     instance-id: ${spring.application.name}:${random.value}
+

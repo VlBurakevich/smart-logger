@@ -20,7 +20,7 @@ public class MonitoringTaskCreateRequest {
     private String serviceName;
 
     @NotNull
-    private Integer checkMin;
+    private Integer checkSec;
 
     @NotNull
     private Integer reportHr;

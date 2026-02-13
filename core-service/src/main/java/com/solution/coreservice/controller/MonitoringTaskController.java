@@ -25,7 +25,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/monitoring-tasks")
+@RequestMapping("/api/core/monitoring-tasks")
 public class MonitoringTaskController {
     private final MonitoringTaskService monitoringTaskService;
 

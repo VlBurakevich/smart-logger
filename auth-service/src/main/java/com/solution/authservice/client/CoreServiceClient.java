@@ -14,15 +14,15 @@ import java.util.UUID;
 @FeignClient(name = "core-service")
 public interface CoreServiceClient {
 
-    @PostMapping("/api/internal/account/register")
+    @PostMapping("/api/core/internal/account/register")
     void register(@RequestBody RegisterCoreRequest registerCoreRequest);
 
-    @PutMapping("/api/internal/account/{id}/status")
+    @PutMapping("/api/core/internal/account/{id}/status")
     void setIsActive(
             @PathVariable UUID id,
             @RequestBody StatusUpdateRequest statusUpdateRequest
     );
 
-    @DeleteMapping("/api/internal/account/{id}")
+    @DeleteMapping("/api/core/internal/account/{id}")
     void deleteUserById(@PathVariable UUID id);
 }

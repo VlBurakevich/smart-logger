@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/snapshots")
+@RequestMapping("/api/core/snapshots")
 public class SnapshotController {
     private final SnapshotService snapshotService;
 

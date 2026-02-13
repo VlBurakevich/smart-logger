@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/internal")
+@RequestMapping("/api/core/internal")
 public class InternalCoreController {
     private final ApiKeyService apiKeyService;
     private final UserService userService;

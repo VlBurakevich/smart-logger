@@ -32,11 +32,11 @@ public class SecurityConfig {
 
     private static final String[] AUTHENTICATED_PATHS = {
             "/api/auth/logout",
-            "/api/user/**"
+            "/api/auth/user/**"
     };
 
     private static final String[] ADMIN_PATHS = {
-            "/api/admin/**"
+            "/api/auth/admin/**"
     };
 
     private final UserDetailsService userDetailsService;

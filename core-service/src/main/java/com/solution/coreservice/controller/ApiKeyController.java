@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/keys")
+@RequestMapping("/api/core/keys")
 public class ApiKeyController {
     private final ApiKeyService apiKeyService;
 
@@ -35,7 +35,7 @@ public class ApiKeyController {
         return ResponseEntity.ok(apiKeyService.getUserKeys(userId, pageable));
     }
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<ApiKeyResponse> createNewKey(
         @RequestHeader("User-Id") UUID userId,
         @RequestBody @Valid ApiKeyCreateRequest request
