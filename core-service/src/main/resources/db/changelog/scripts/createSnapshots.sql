@@ -1,4 +1,4 @@
-CREATE TYPE snapshot_status AS ENUM ('PENDING', 'COMPLETED', 'FAILED');
+CREATE TYPE snapshot_status AS ENUM ('PENDING', 'AWAITING_REPLY', 'COMPLETED', 'FAILED');
 
 CREATE TABLE snapshots
 (
@@ -13,7 +13,3 @@ CREATE TABLE snapshots
     ai_score           DOUBLE PRECISION     DEFAULT 0.00,
     created_at         TIMESTAMPTZ          DEFAULT NOW()
 );
-
-CREATE INDEX idx_snapshots_account_time ON snapshots (monitoring_task_id, created_at DESC);
-CREATE INDEX idx_snapshots_errors_gin ON snapshots USING GIN (errors);
-CREATE INDEX idx_snapshots_anomalies_gin ON snapshots USING GIN (anomalies);

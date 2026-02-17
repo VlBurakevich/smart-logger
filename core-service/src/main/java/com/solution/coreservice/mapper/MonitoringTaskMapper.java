@@ -22,7 +22,6 @@ public interface MonitoringTaskMapper {
     MonitoringTaskResponse toResponse(MonitoringTask monitoringTask);
 
     @Mapping(target = "apiKey", source = "apiKeyId", qualifiedByName = "idToApiKey")
-    @Mapping(target = "status", constant = "READY")
     MonitoringTask toEntity(MonitoringTaskCreateRequest request);
 
     void updateEntityFromDto(MonitoringTaskUpdateRequest request, @MappingTarget MonitoringTask monitoringTask);

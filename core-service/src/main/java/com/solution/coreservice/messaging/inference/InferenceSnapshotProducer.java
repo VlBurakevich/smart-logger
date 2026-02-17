@@ -17,7 +17,7 @@ public class InferenceSnapshotProducer {
     @Value("${app.kafka.inference-request}")
     private String snapshotRequestTopic;
 
-    public void sendToSnapshot(InferenceSnapshotRequest request) {
+    public void sendToAnalyze(InferenceSnapshotRequest request) {
         log.info(">>>> [KAFKA] Send to topic: {}", snapshotRequestTopic);
 
         kafkaTemplate.send(snapshotRequestTopic, request.taskId().toString(), request)

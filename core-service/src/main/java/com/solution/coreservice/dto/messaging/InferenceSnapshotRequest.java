@@ -8,8 +8,6 @@ import java.util.UUID;
 
 public record InferenceSnapshotRequest(
         @JsonProperty("task_id") UUID taskId,
-        @JsonProperty("service_name") String serviceName,
-        @JsonProperty("api_key_hash") String apiKeyHash,
         @JsonProperty("send_at") OffsetDateTime sendAt,
         @JsonProperty("logs") List<LogEntry> logs
 ) {}

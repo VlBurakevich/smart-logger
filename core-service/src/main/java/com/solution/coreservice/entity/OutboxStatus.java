@@ -1,8 +1,8 @@
 package com.solution.coreservice.entity;
 
-public enum SnapshotStatus {
+public enum OutboxStatus {
     PENDING,
-    AWAITING_REPLY,
-    COMPLETED,
+    PROCESSING,
+    SENT,
     FAILED
 }

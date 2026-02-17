@@ -27,8 +27,8 @@ public class VictoriaLogsClient {
     private final ObjectMapper objectMapper;
 
     public List<LogEntry> fetchLogs(MonitoringTask task, int limit) {
-        OffsetDateTime fromTime = task.getLastCheckedAt() != null
-                ? task.getLastCheckedAt()
+        OffsetDateTime fromTime = task.getLastSnapshotAt() != null
+                ? task.getLastSnapshotAt()
                 : OffsetDateTime.now(ZoneOffset.UTC);
 
         String fromParam = fromTime.atZoneSameInstant(ZoneOffset.UTC)

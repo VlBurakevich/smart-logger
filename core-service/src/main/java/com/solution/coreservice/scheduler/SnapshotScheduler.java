@@ -1,36 +1,35 @@
 package com.solution.coreservice.scheduler;
 
 import com.solution.coreservice.entity.MonitoringTask;
-import com.solution.coreservice.repository.MonitoringTaskRepository;
-import com.solution.coreservice.service.LogProcessingService;
+import com.solution.coreservice.entity.Snapshot;
+import com.solution.coreservice.service.SnapshotProcessingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 @RequiredArgsConstructor
-public class SnapshotTaskScheduler {
-    private final MonitoringTaskRepository monitoringTaskRepository;
-    private final LogProcessingService logProcessingService;
+public class SnapshotScheduler {
+    private final SnapshotProcessingService processingService;
 
     @Value("${app.scheduler.snapshot.batch-size:10}")
     private int batchSize;
 
     @Scheduled(fixedRateString = "${app.scheduler.snapshot.rate-ms}")
     public void scheduleSnapshotProcessing() {
-        List<MonitoringTask> tasks = monitoringTaskRepository.findReadyToSnapshot(OffsetDateTime.now(), batchSize);
+        List<MonitoringTask> tasks = processingService.captureTasks(batchSize);
 
-        for (MonitoringTask task : tasks) {
+        for (MonitoringTask task: tasks) {
             try {
-                logProcessingService.processSnapshot(task);
+                processingService.processSnapshot(task);
             } catch (Exception e) {
-                log.error("Critical error during task {} snapshot", task.getId(), e);
+                log.error(e.getMessage(), e);
+                processingService.handleFailure(task);
             }
         }
     }

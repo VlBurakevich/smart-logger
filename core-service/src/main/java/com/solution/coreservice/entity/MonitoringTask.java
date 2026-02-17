@@ -2,14 +2,13 @@ package com.solution.coreservice.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -19,8 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -53,19 +50,22 @@ public class MonitoringTask {
     @Column(name = "service_name", length = 100, nullable = false)
     private String serviceName;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "task_status", nullable = false)
-    @JdbcType(PostgreSQLEnumJdbcType.class)
-    private TaskStatus status = TaskStatus.READY;
-
-    @Column(name = "check_sec")
-    private Integer checkSec;
+    @Column(name = "snapshot_sec")
+    private Integer snapshotSec;
 
     @Column(name = "report_hr")
     private Integer reportHr;
 
-    @Column(name = "last_checked_at")
-    private OffsetDateTime lastCheckedAt;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "current_snapshot_id")
+    private Snapshot currentSnapshot;
+
+    @Column(name = "last_snapshot_at")
+    private OffsetDateTime lastSnapshotAt;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "current_report_id")
+    private Report report;
 
     @Column(name = "last_report_at")
     private OffsetDateTime lastReportAt;
@@ -98,10 +98,9 @@ public class MonitoringTask {
         return "MonitoringSetting{" +
                 "id=" + id +
                 ", serviceName=" + serviceName +
-                ", status=" + status +
-                ", checkMin=" + checkSec +
+                ", snapshotSec=" + snapshotSec +
                 ", reportHr=" + reportHr +
-                ", lastCheckedAt=" + lastCheckedAt +
+                ", lastCheckedAt=" + lastSnapshotAt +
                 ", lastReportAt=" + lastReportAt +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +

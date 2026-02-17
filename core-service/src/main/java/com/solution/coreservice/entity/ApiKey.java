@@ -61,8 +61,8 @@ public class ApiKey {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ApiKey apiKey = (ApiKey) o;
-        return id != null && id.equals(apiKey.id);
+        ApiKey that = (ApiKey) o;
+        return id != null && id.equals(that.id);
     }
 
     @Override
