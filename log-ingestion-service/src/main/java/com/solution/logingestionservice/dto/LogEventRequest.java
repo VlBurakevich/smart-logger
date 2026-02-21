@@ -2,7 +2,7 @@ package com.solution.logingestionservice.dto;
 
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +21,6 @@ public class LogEventRequest {
     private String message;
     @NotBlank
     private String loggerName;
-    @NotEmpty
+    @NotNull
     private OffsetDateTime timestamp;
 }

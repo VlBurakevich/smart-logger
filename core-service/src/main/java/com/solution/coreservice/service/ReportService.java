@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -31,6 +32,7 @@ public class ReportService {
         return reports.map(reportMapper::toShortResponse);
     }
 
+    @Transactional
     public void deleteReport(UUID reportId, UUID userId) {
         if (!reportRepository.existsByIdAndMonitoringTask_ApiKey_User_Id(reportId, userId)) {
             throw new ServiceException(HttpStatus.NOT_FOUND, "Report not found");

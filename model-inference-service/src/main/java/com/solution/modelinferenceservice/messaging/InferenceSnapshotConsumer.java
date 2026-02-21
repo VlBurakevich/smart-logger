@@ -23,16 +23,15 @@ public class InferenceSnapshotConsumer {
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void consume(InferenceSnapshotRequest request, Acknowledgment ack) {
-        log.info(">>>> [KAFKA CONSUME] Received snapshot for Task ID: {}. Logs count: {}",
-                request.taskId(), request.logs().size());
-
+        log.info(">>>> [KAFKA CONSUME] Received snapshot for Snapshot ID: {}. Logs count: {}",
+                request.snapshotId(), request.logs().size());
         try {
             InferenceSnapshotResult result = logAnalysisService.analyzeLogs(request);
 
             producer.send(result);
 
             ack.acknowledge();
-        } catch (Error e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
     }

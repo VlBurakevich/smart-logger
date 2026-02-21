@@ -20,7 +20,7 @@ public class InferenceSnapshotProducer {
     public void sendToAnalyze(InferenceSnapshotRequest request) {
         log.info(">>>> [KAFKA] Send to topic: {}", snapshotRequestTopic);
 
-        kafkaTemplate.send(snapshotRequestTopic, request.taskId().toString(), request)
+        kafkaTemplate.send(snapshotRequestTopic, request.snapshotId().toString(), request)
                 .whenComplete((result, error) -> {
                     if (error == null) {
                         log.info(">>>> [KAFKA SUCCESS] send success");

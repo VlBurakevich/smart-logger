@@ -1,6 +1,5 @@
 package com.solution.logingestionservice.service;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solution.logingestionservice.dto.LogEventRequest;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +11,7 @@ import org.springframework.web.client.RestClient;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -27,14 +27,14 @@ public class LogIngestionService {
 
         String body = logEvents.stream()
                 .map(event -> createJsonLine(event, apiKeyHash, serviceName))
+                .filter(Objects::nonNull)
                 .collect(Collectors.joining("\n", "", "\n"));
-
 
         CompletableFuture.runAsync(() -> {
             try {
                 victoriaRestClient.post()
                         .uri(uriBuilder -> uriBuilder
-                                .queryParam("_stream_fields", "api_key,service")
+                                .queryParam("_stream_fields", "api_key_hash,service")
                                 .queryParam("_time_field", "timestamp")
                                 .build())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -61,7 +61,7 @@ public class LogIngestionService {
 
             return objectMapper.writeValueAsString(line);
         } catch (Exception e) {
-            return "{}";
+            return null;
         }
     }
 }

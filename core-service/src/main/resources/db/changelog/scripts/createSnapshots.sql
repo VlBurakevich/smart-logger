@@ -8,7 +8,8 @@ CREATE TABLE snapshots
     status             snapshot_status      DEFAULT 'PENDING' NOT NULL,
     errors             JSONB,
     max_severity       DOUBLE PRECISION     DEFAULT 0.00,
-    anomalies          JSONB,
+    rootCase           TEXT,
+    suggestedAction    TEXT,
     ai_description     TEXT,
     ai_score           DOUBLE PRECISION     DEFAULT 0.00,
     created_at         TIMESTAMPTZ          DEFAULT NOW()

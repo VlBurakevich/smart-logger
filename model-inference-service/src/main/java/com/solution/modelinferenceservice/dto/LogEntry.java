@@ -1,12 +1,11 @@
 package com.solution.modelinferenceservice.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.OffsetDateTime;
 
 public record LogEntry(
-        @JsonProperty("timestamp")
-        String timestamp,
-        @JsonProperty("level")
         String level,
-        @JsonProperty("message")
-        String message
-) { }
+        String message,
+        String loggerName,
+        OffsetDateTime timestamp
+) {
+}

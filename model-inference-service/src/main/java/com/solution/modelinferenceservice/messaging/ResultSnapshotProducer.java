@@ -20,7 +20,7 @@ public class ResultSnapshotProducer {
     public void send(InferenceSnapshotResult inferenceResult) {
         log.info(">>>> [KAFKA] Send to topic: {}", snapshotResultTopic);
 
-        kafkaTemplate.send(snapshotResultTopic, inferenceResult.taskId(), inferenceResult)
+        kafkaTemplate.send(snapshotResultTopic, inferenceResult.snapshotId().toString(), inferenceResult)
                 .whenComplete((result, error) -> {
                     if (error == null) {
                         log.info(">>>> [KAFKA SUCCESS] send success");

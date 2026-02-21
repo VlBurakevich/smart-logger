@@ -15,10 +15,8 @@ import java.util.UUID;
 public class SnapshotResponse {
     private UUID id;
     private OffsetDateTime snapshotTime;
-    private SnapshotStatus snapshotStatus;
     private JsonNode errors;
     private Double maxSeverity;
-    private JsonNode anomalies;
     private String aiDescription;
     private Double aiScore;
     private OffsetDateTime createdAt;

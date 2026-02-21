@@ -12,6 +12,6 @@ import java.util.UUID;
 public class MonitoringTaskShortResponse {
     private UUID id;
     private String serviceName;
-    private Integer checkMin;
+    private Integer snapshotSec;
     private Integer reportHr;
 }

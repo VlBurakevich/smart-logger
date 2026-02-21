@@ -65,7 +65,7 @@ public class MonitoringTask {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_report_id")
-    private Report report;
+    private Report currnetReport;
 
     @Column(name = "last_report_at")
     private OffsetDateTime lastReportAt;

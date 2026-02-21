@@ -30,13 +30,13 @@ public class OutboxRelay {
             return;
         }
 
-        for(OutboxMessage message : messages) {
+        for (OutboxMessage message : messages) {
             sendToKafka(message);
         }
     }
 
     private void sendToKafka(OutboxMessage message) {
-        kafkaTemplate.send(message.getTopic(), message.getPayload())
+        kafkaTemplate.send(message.getTopic(), message.getId().toString(), message.getPayload())
                 .whenComplete((res, ex) -> {
                     if (ex == null) {
                         outboxService.updateFinalStatus(message.getId(), OutboxStatus.SENT, null);

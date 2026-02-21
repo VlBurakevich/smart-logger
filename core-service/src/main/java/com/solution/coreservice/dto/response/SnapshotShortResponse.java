@@ -12,6 +12,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class SnapshotShortResponse {
     private UUID id;
-    private SnapshotStatus snapshotStatus;
+    private SnapshotStatus status;
     private String aiDescription;
 }

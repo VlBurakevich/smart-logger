@@ -1,8 +1,7 @@
 package com.solution.coreservice.scheduler;
 
 import com.solution.coreservice.entity.MonitoringTask;
-import com.solution.coreservice.entity.Snapshot;
-import com.solution.coreservice.service.SnapshotProcessingService;
+import com.solution.coreservice.service.SnapshotPersistenceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +14,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SnapshotScheduler {
-    private final SnapshotProcessingService processingService;
+    private final SnapshotPersistenceService processingService;
 
     @Value("${app.scheduler.snapshot.batch-size:10}")
     private int batchSize;

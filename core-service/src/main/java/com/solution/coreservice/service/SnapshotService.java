@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -31,6 +32,7 @@ public class SnapshotService {
         return snapshots.map(snapshotMapper::toShortResponse);
     }
 
+    @Transactional
     public void delete(UUID userId, UUID snapshotId) {
         if (!snapshotRepository.existsByIdAndMonitoringTask_ApiKey_User_Id(snapshotId, userId)) {
             throw new ServiceException(HttpStatus.NOT_FOUND, "Snapshot not found");

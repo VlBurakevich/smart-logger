@@ -3,6 +3,7 @@ package com.solution.coreservice.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solution.coreservice.client.VictoriaLogsClient;
 import com.solution.coreservice.dto.messaging.InferenceSnapshotRequest;
+import com.solution.coreservice.dto.messaging.InferenceSnapshotResponse;
 import com.solution.coreservice.dto.messaging.LogEntry;
 import com.solution.coreservice.entity.MonitoringTask;
 import com.solution.coreservice.entity.OutboxMessage;
@@ -10,6 +11,7 @@ import com.solution.coreservice.entity.OutboxStatus;
 import com.solution.coreservice.entity.Snapshot;
 import com.solution.coreservice.entity.SnapshotStatus;
 import com.solution.coreservice.exception.ServiceException;
+import com.solution.coreservice.mapper.SnapshotMapper;
 import com.solution.coreservice.repository.MonitoringTaskRepository;
 import com.solution.coreservice.repository.OutboxRepository;
 import com.solution.coreservice.repository.SnapshotRepository;
@@ -29,7 +31,8 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SnapshotProcessingService {
+public class SnapshotPersistenceService {
+    private final SnapshotMapper snapshotMapper;
     @Value("${victorialogs.batch.limit:100}")
     private int limit;
 
@@ -41,7 +44,7 @@ public class SnapshotProcessingService {
     private final MonitoringTaskRepository monitoringTaskRepository;
     private final SnapshotRepository snapshotRepository;
     private final ObjectMapper objectMapper;
-    private final ObjectProvider<SnapshotProcessingService> self;
+    private final ObjectProvider<SnapshotPersistenceService> self;
 
     public void processSnapshot(MonitoringTask task) {
         List<LogEntry> logs = victoriaLogsClient.fetchLogs(task, limit);
@@ -78,10 +81,6 @@ public class SnapshotProcessingService {
         outboxRepository.save(outboxMessage);
     }
 
-    public void finalizeSnapshot() {
-        //TODO
-    }
-
     @Transactional
     public List<MonitoringTask> captureTasks(int batchSize) {
         List<MonitoringTask> tasks = monitoringTaskRepository.findReadyForSnapshot(batchSize);
@@ -97,6 +96,7 @@ public class SnapshotProcessingService {
             Snapshot snapshot = new Snapshot();
             snapshot.setMonitoringTask(task);
             snapshot.setStatus(SnapshotStatus.PENDING);
+            snapshot.setSnapshotTime(now);
 
             preparedSnapshots.add(snapshot);
 
@@ -119,5 +119,16 @@ public class SnapshotProcessingService {
             }
             actualTask.setCurrentSnapshot(null);
         });
+    }
+
+    @Transactional
+    public void complete(InferenceSnapshotResponse response) {
+        Snapshot snapshot = snapshotRepository.findById(response.snapshotId())
+                .orElseThrow();
+
+        snapshotMapper.updateSnapshot(snapshot, response);
+        snapshot.setStatus(SnapshotStatus.COMPLETED);
+
+        snapshotRepository.save(snapshot);
     }
 }

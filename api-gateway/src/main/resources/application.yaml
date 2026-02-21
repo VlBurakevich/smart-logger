@@ -24,6 +24,7 @@ spring:
       port: 6379
       connect-timeout: 500ms
       timeout: 500ms
+      password: ${REDIS_PASSWORD}
 
 eureka:
   client:

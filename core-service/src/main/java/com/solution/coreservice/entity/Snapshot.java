@@ -67,9 +67,11 @@ public class Snapshot {
     @Column(name = "max_severity")
     private Double maxSeverity;
 
-    @Column(name = "anomalies", columnDefinition = "JSONB")
-    @JdbcTypeCode(SqlTypes.JSON)
-    private JsonNode anomalies;
+    @Column(name = "root_case")
+    private String rootCase;
+
+    @Column(name = "suggested_action")
+    private String suggestedAction;
 
     @Column(name = "ai_description", columnDefinition = "TEXT")
     private String aiDescription;
@@ -101,7 +103,8 @@ public class Snapshot {
                 ", status=" + status +
                 ", errors=" + errors +
                 ", maxSeverity=" + maxSeverity +
-                ", anomalies=" + anomalies +
+                ", rootCase=" + rootCase +
+                ", suggestedAction=" + suggestedAction +
                 ", aiDescription=" + aiDescription +
                 ", aiScore=" + aiScore +
                 ", createdAt=" + createdAt +

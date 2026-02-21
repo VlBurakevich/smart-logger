@@ -14,7 +14,7 @@ public class MonitoringTaskResponse {
     private UUID id;
     private UUID apiKeyId;
     private String serviceName;
-    private Integer checkSec;
+    private Integer snapshotSec;
     private Integer reportHr;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
