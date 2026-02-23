@@ -2,6 +2,7 @@ package com.solution.notificationservice.service;
 
 import com.solution.notificationservice.constants.MessageKeys;
 import com.solution.notificationservice.events.SendTelegramMessageEvent;
+import com.solution.notificationservice.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -34,15 +35,16 @@ public class TelegramCommandService {
             case "/start" -> handleStart(chatId, text, user);
             case "/report" -> handleReport(chatId, user);
             case "/help" -> handleHelp(chatId);
-            case "/stop", "/unbind" -> handleUnbind(chatId, user);
+            case "/stop", "/unbind" -> handleUnbind(chatId);
             default -> handleUnknown(chatId);
         }
     }
 
     public void handleStart(Long chatId, String messageText, User user) {
+        log.info("Starting telegram command for chatId: {}, messageText: {}", chatId, messageText);
         String[] parts = messageText.split("\\s+");
 
-        if (parts.length == 2) {
+        if (parts.length < 2) {
             publish(chatId, MessageKeys.BINDING_WELCOME);
             return;
         }
@@ -60,18 +62,29 @@ public class TelegramCommandService {
     }
 
     private void handleReport(Long chatId, User user) {
-
+        //TODO
     }
 
     private void handleHelp(Long chatId) {
+        String key = telegramBindingService.isBound(chatId)
+                ? MessageKeys.HELP_AUTHORIZED
+                : MessageKeys.HELP_UNAUTHORIZED;
 
+        publish(chatId, key);
     }
 
-    private void handleUnbind(Long chatId, User user) {
-
+    private void handleUnbind(Long chatId) {
+        try {
+            telegramBindingService.unbindByTelegramContext(chatId);
+            publish(chatId, MessageKeys.UNBIND_SUCCESS);
+        } catch (ServiceException e) {
+            publish(chatId, MessageKeys.UNBIND_NOTFOUND);
+        } catch (Exception e) {
+            publish(chatId, MessageKeys.UNBIND_ERROR);
+        }
     }
 
     private void handleUnknown(Long chatId) {
-
+        publish(chatId, MessageKeys.UNKNOWN);
     }
 }

@@ -17,4 +17,6 @@ public interface TelegramBindingRepository extends JpaRepository<TelegramBinding
     void deleteByUserIdAndChatId(UUID userId, Long chatId);
 
     boolean existsByChatId(Long chatId);
+
+    void deleteByChatId(Long chatId);
 }

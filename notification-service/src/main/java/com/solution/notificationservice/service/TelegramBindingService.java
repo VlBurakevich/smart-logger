@@ -39,6 +39,10 @@ public class TelegramBindingService {
         return botLink + "?start=" + token;
     }
 
+    public boolean isBound(Long chatId) {
+        return telegramBindingRepository.existsByChatId(chatId);
+    }
+
     @Transactional
     public void validateAndBind(Long chatId, String token, String telegramUsername, String firstName) {
         UUID userId = redisService.consumeToken(token)
@@ -70,5 +74,14 @@ public class TelegramBindingService {
         }
 
         telegramBindingRepository.deleteByUserIdAndChatId(userId, chatId);
+    }
+
+    @Transactional
+    public void unbindByTelegramContext(Long chatId) {
+        if (!telegramBindingRepository.existsByChatId(chatId)) {
+            throw new ServiceException(HttpStatus.NOT_FOUND, "Binding not found");
+        }
+
+        telegramBindingRepository.deleteByChatId(chatId);
     }
 }

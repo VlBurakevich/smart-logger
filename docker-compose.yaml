@@ -265,6 +265,8 @@ services:
       DATABASE_USER: root
       DATABASE_PASSWORD: root
 
+      REDIS_PASSWORD: "SUPER_PASSWORD!@#"
+
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
 
       SERVICE_NAME: notification-service
