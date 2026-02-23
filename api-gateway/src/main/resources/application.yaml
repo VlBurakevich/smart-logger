@@ -1,6 +1,6 @@
 app:
   redis:
-    account-ttl: 10m
+    api-key-ttl: 10m
 
 jwt:
   secret:

@@ -53,6 +53,7 @@ victorialogs:
 app:
   kafka:
     inference-request: ${KAFKA_TOPIC_INFERENCE_SNAPSHOT_REQUEST:inference.snapshot.request}
+    inference-result: ${KAFKA_TOPIC_INFERENCE_SNAPSHOT_RESULT:inference.snapshot.result}
   outbox:
     relay-delay: 50000
     batch-size: 50

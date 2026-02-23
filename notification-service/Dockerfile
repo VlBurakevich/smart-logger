@@ -1,14 +1,12 @@
-FROM bellsoft/liberica-openjdk-alpine:21 AS builder
+FROM maven:3.9.9-eclipse-temurin-21 AS builder
 
 WORKDIR /build
 
 COPY pom.xml .
-
-RUN apk add --no-cache maven && mvn dependency:go-offline -B
+RUN mvn dependency:go-offline -B --no-transfer-progress
 
 COPY src ./src
-
-RUN mvn clean package -DskipTests -B
+RUN mvn clean package -DskipTests -B --no-transfer-progress
 
 FROM bellsoft/liberica-runtime-container:jre-21-musl
 

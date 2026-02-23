@@ -25,7 +25,7 @@ public class SecurityFilters {
     private final RedisService redisService;
     private final CoreServiceClient coreClient;
 
-    @Value("${app.redis.account-ttl:15m}")
+    @Value("${app.redis.api-key-ttl:15m}")
     private Duration apiKeyTtl;
 
 
@@ -34,7 +34,6 @@ public class SecurityFilters {
 
     public HandlerFilterFunction<ServerResponse, ServerResponse> logging() {
         return (request, next) -> {
-            System.out.println("!!!! DEBUG: REQUEST RECEIVED: " + request.path());
             long startTime = System.currentTimeMillis();
 
             log.info("==> Incoming: {} {}", request.method(), request.path());

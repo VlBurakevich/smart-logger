@@ -248,7 +248,6 @@ services:
     networks:
       - app-network
 
-
   notification-service:
     build: ./notification-service
     container_name: notification-service
@@ -265,6 +264,8 @@ services:
       DATABASE_URL: jdbc:postgresql://notification-service-db:5432/notification-service-db
       DATABASE_USER: root
       DATABASE_PASSWORD: root
+
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
 
       SERVICE_NAME: notification-service
       SPRING_PROFILES_ACTIVE: docker

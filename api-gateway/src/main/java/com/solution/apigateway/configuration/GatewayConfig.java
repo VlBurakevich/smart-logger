@@ -34,7 +34,12 @@ public class GatewayConfig {
                         .filter(f.logging())
                         .filter(f.jwtAuth())
                         .build())
-
+                .add(route()
+                        .route(path("/api/notification/**"), http())
+                        .filter(lb("notification-service"))
+                        .filter(f.logging())
+                        .filter(f.jwtAuth())
+                        .build())
                 .build();
     }
 }

@@ -2,6 +2,8 @@ package com.solution.notificationservice.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -15,14 +17,18 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "telegram_chat_bindings")
+@Table(name = "telegram_bindings")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TelegramChatBinding {
+public class TelegramBinding {
+
     @Id
-    @Column(name = "user_id")
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(name = "user_id", nullable = false)
     private UUID userId;
 
     @Column(name = "chat_id", nullable = false, unique = true)
@@ -45,7 +51,7 @@ public class TelegramChatBinding {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TelegramChatBinding that = (TelegramChatBinding) o;
+        TelegramBinding that = (TelegramBinding) o;
         return userId != null && userId.equals(that.userId);
     }
 
@@ -56,7 +62,7 @@ public class TelegramChatBinding {
 
     @Override
     public String toString() {
-        return "TelegramChatBinding{" +
+        return "TelegramBinding{" +
                 "userId=" + userId +
                 ", chatId=" + chatId +
                 ", username=" + username +
