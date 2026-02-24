@@ -16,7 +16,7 @@ public class MonitoringTaskUpdateRequest {
 
     private String serviceName;
 
-    private Integer checkMin;
+    private Integer checkIntervalSec;
 
-    private Integer reportHr;
+    private Integer reportIntervalHr;
 }

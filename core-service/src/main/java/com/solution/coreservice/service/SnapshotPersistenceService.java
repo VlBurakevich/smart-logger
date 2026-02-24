@@ -12,6 +12,7 @@ import com.solution.coreservice.entity.Snapshot;
 import com.solution.coreservice.entity.SnapshotStatus;
 import com.solution.coreservice.exception.ServiceException;
 import com.solution.coreservice.mapper.SnapshotMapper;
+import com.solution.coreservice.repository.ApiKeyRepository;
 import com.solution.coreservice.repository.MonitoringTaskRepository;
 import com.solution.coreservice.repository.OutboxRepository;
 import com.solution.coreservice.repository.SnapshotRepository;
@@ -27,6 +28,10 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -40,19 +45,26 @@ public class SnapshotPersistenceService {
     private String snapshotRequestTopic;
 
     private final OutboxRepository outboxRepository;
-    private final VictoriaLogsClient victoriaLogsClient;
     private final MonitoringTaskRepository monitoringTaskRepository;
+    private final ApiKeyRepository apiKeyRepository;
     private final SnapshotRepository snapshotRepository;
+    private final LogPreProcessor logPreProcessor;
+    private final VictoriaLogsClient victoriaLogsClient;
     private final ObjectMapper objectMapper;
     private final ObjectProvider<SnapshotPersistenceService> self;
 
     public void processSnapshot(MonitoringTask task) {
         List<LogEntry> logs = victoriaLogsClient.fetchLogs(task, limit);
+
+
+
         InferenceSnapshotRequest request = new InferenceSnapshotRequest(
                 task.getCurrentSnapshot().getId(),
                 OffsetDateTime.now(ZoneOffset.UTC),
                 logs
         );
+
+        logPreProcessor.processSnapshot(request);
 
         self.ifAvailable(service -> service.sendToInference(request, task));
     }
@@ -89,6 +101,12 @@ public class SnapshotPersistenceService {
             return List.of();
         }
 
+        Set<UUID> keyIds = tasks.stream()
+                .map(t -> t.getApiKey().getId())
+                .collect(Collectors.toSet());
+
+        apiKeyRepository.findAllById(keyIds);
+
         List<Snapshot> preparedSnapshots = new ArrayList<>();
         OffsetDateTime now  = OffsetDateTime.now(ZoneOffset.UTC);
 
@@ -96,7 +114,8 @@ public class SnapshotPersistenceService {
             Snapshot snapshot = new Snapshot();
             snapshot.setMonitoringTask(task);
             snapshot.setStatus(SnapshotStatus.PENDING);
-            snapshot.setSnapshotTime(now);
+            snapshot.setSnapshotStartTime(now);
+            snapshot.setSnapshotEndTime(now.plusSeconds(task.getSnapshotIntervalSec()));
 
             preparedSnapshots.add(snapshot);
 
@@ -123,12 +142,15 @@ public class SnapshotPersistenceService {
 
     @Transactional
     public void complete(InferenceSnapshotResponse response) {
-        Snapshot snapshot = snapshotRepository.findById(response.snapshotId())
-                .orElseThrow();
+        Optional<Snapshot> snapshotOpt = snapshotRepository.findById(response.snapshotId());
 
+        if (snapshotOpt.isEmpty()) {
+            log.error("CRITICAL: Received inference result for non-existent snapshot ID: {}", response.snapshotId());
+            return;
+        }
+
+        Snapshot snapshot = snapshotOpt.get();
         snapshotMapper.updateSnapshot(snapshot, response);
         snapshot.setStatus(SnapshotStatus.COMPLETED);
-
-        snapshotRepository.save(snapshot);
     }
 }

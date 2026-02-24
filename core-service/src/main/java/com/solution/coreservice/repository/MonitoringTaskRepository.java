@@ -25,7 +25,7 @@ public interface MonitoringTaskRepository extends JpaRepository<MonitoringTask, 
             SELECT * FROM monitoring_tasks
             WHERE current_snapshot_id IS NULL
                 AND (last_snapshot_at IS NULL
-                    OR last_snapshot_at + (snapshot_sec * interval '1 second') <= NOW())
+                    OR last_snapshot_at + (snapshot_interval_sec * interval '1 second') <= NOW())
             ORDER BY last_snapshot_at ASC NULLS FIRST
             FOR UPDATE SKIP LOCKED
             LIMIT :batchSize

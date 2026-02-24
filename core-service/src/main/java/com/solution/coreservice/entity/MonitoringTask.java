@@ -50,11 +50,11 @@ public class MonitoringTask {
     @Column(name = "service_name", length = 100, nullable = false)
     private String serviceName;
 
-    @Column(name = "snapshot_sec")
-    private Integer snapshotSec;
+    @Column(name = "snapshot_interval_sec")
+    private Integer snapshotIntervalSec;
 
-    @Column(name = "report_hr")
-    private Integer reportHr;
+    @Column(name = "report_interval_hr")
+    private Integer reportIntervalHr;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_snapshot_id")
@@ -98,8 +98,8 @@ public class MonitoringTask {
         return "MonitoringSetting{" +
                 "id=" + id +
                 ", serviceName=" + serviceName +
-                ", snapshotSec=" + snapshotSec +
-                ", reportHr=" + reportHr +
+                ", snapshotIntervalSec=" + snapshotIntervalSec +
+                ", reportIntervalHr=" + reportIntervalHr +
                 ", lastCheckedAt=" + lastSnapshotAt +
                 ", lastReportAt=" + lastReportAt +
                 ", createdAt=" + createdAt +

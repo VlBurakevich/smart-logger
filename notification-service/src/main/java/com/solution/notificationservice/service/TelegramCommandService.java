@@ -41,7 +41,6 @@ public class TelegramCommandService {
     }
 
     public void handleStart(Long chatId, String messageText, User user) {
-        log.info("Starting telegram command for chatId: {}, messageText: {}", chatId, messageText);
         String[] parts = messageText.split("\\s+");
 
         if (parts.length < 2) {

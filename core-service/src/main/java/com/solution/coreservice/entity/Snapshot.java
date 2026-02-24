@@ -52,8 +52,11 @@ public class Snapshot {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MonitoringTask monitoringTask;
 
-    @Column(name = "snapshot_time", nullable = false)
-    private OffsetDateTime snapshotTime;
+    @Column(name = "snapshot_start_time", nullable = false)
+    private OffsetDateTime snapshotStartTime;
+
+    @Column(name = "snapshot_end_time")
+    private OffsetDateTime snapshotEndTime;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -99,7 +102,8 @@ public class Snapshot {
     public String toString() {
         return "Snapshot{" +
                 "id=" + id +
-                ", snapshotTime=" + snapshotTime +
+                ", snapshotStartTime=" + snapshotStartTime +
+                ", snapshotEndTime=" + snapshotEndTime +
                 ", status=" + status +
                 ", errors=" + errors +
                 ", maxSeverity=" + maxSeverity +
