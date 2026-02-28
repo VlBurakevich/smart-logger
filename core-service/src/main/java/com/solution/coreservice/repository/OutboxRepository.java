@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,4 +36,11 @@ public interface OutboxRepository extends JpaRepository<OutboxMessage, UUID> {
     void updateStatus(@Param("id") UUID id,
                       @Param("status") OutboxStatus status,
                       @Param("error") String error);
+
+
+    @Modifying
+    @Query(value = "DELETE FROM outbox_messages " +
+            "WHERE status = 'SENT'" +
+            "AND updated_at < :beforeDate", nativeQuery = true)
+    int deleteCompletedOlderThan(@Param("beforeDate") OffsetDateTime daysAgo);
 }

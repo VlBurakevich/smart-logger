@@ -52,7 +52,7 @@ public class LogIngestionService {
         try {
             Map<String, Object> line = new HashMap<>();
             line.put("level", event.getLevel());
-            line.put("message", event.getMessage());
+            line.put("_msg", event.getMessage());
             line.put("logger", event.getLoggerName());
             line.put("timestamp", event.getTimestamp());
 

@@ -22,6 +22,7 @@ spring:
 app:
   kafka:
     inference-result: ${KAFKA_TOPIC_INFERENCE_SNAPSHOT_RESULT:inference.snapshot.result}
+    inference-request: ${KAFKA_TOPIC_INFERENCE_SNAPSHOT_REQUEST:inference.snapshot.request}
 
 eureka:
   client:
@@ -31,3 +32,8 @@ eureka:
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${random.value}
+
+logging:
+  level:
+    org.apache.kafka: WARN
+    org.springframework.kafka: WARN

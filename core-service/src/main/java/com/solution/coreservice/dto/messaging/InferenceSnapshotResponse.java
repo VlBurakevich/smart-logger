@@ -9,9 +9,9 @@ import java.util.UUID;
 public record InferenceSnapshotResponse (
         UUID snapshotId,
         JsonNode errors,
+        String aiDescription,
         String rootCase,
         String suggestedAction,
-        String aiDescription,
         BigDecimal aiScore,
         OffsetDateTime createdAt
 ) {}

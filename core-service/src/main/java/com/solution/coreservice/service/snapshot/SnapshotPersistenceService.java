@@ -1,10 +1,9 @@
-package com.solution.coreservice.service;
+package com.solution.coreservice.service.snapshot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.solution.coreservice.client.VictoriaLogsClient;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.solution.coreservice.dto.messaging.InferenceSnapshotRequest;
 import com.solution.coreservice.dto.messaging.InferenceSnapshotResponse;
-import com.solution.coreservice.dto.messaging.LogEntry;
 import com.solution.coreservice.entity.MonitoringTask;
 import com.solution.coreservice.entity.OutboxMessage;
 import com.solution.coreservice.entity.OutboxStatus;
@@ -18,7 +17,6 @@ import com.solution.coreservice.repository.OutboxRepository;
 import com.solution.coreservice.repository.SnapshotRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -37,9 +35,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SnapshotPersistenceService {
-    private final SnapshotMapper snapshotMapper;
-    @Value("${victorialogs.batch.limit:100}")
-    private int limit;
 
     @Value("${app.kafka.inference-request}")
     private String snapshotRequestTopic;
@@ -48,26 +43,8 @@ public class SnapshotPersistenceService {
     private final MonitoringTaskRepository monitoringTaskRepository;
     private final ApiKeyRepository apiKeyRepository;
     private final SnapshotRepository snapshotRepository;
-    private final LogPreProcessor logPreProcessor;
-    private final VictoriaLogsClient victoriaLogsClient;
+    private final SnapshotMapper snapshotMapper;
     private final ObjectMapper objectMapper;
-    private final ObjectProvider<SnapshotPersistenceService> self;
-
-    public void processSnapshot(MonitoringTask task) {
-        List<LogEntry> logs = victoriaLogsClient.fetchLogs(task, limit);
-
-
-
-        InferenceSnapshotRequest request = new InferenceSnapshotRequest(
-                task.getCurrentSnapshot().getId(),
-                OffsetDateTime.now(ZoneOffset.UTC),
-                logs
-        );
-
-        logPreProcessor.processSnapshot(request);
-
-        self.ifAvailable(service -> service.sendToInference(request, task));
-    }
 
     @Transactional
     public void sendToInference(InferenceSnapshotRequest request, MonitoringTask task) {
@@ -77,12 +54,14 @@ public class SnapshotPersistenceService {
             throw new IllegalArgumentException("snapshot is null");
         }
         snapshot.setStatus(SnapshotStatus.AWAITING_REPLY);
+        snapshotRepository.save(snapshot);
 
         OutboxMessage outboxMessage = new OutboxMessage();
         outboxMessage.setTopic(snapshotRequestTopic);
 
         try {
             outboxMessage.setPayload(objectMapper.valueToTree(request));
+            log.info("Payload: {}", outboxMessage.getPayload());
         } catch (Exception e) {
             throw new ServiceException(HttpStatus.NOT_FOUND, e.getMessage());
         }
@@ -142,15 +121,46 @@ public class SnapshotPersistenceService {
 
     @Transactional
     public void complete(InferenceSnapshotResponse response) {
-        Optional<Snapshot> snapshotOpt = snapshotRepository.findById(response.snapshotId());
+        Snapshot snapshot = findSnapshot(response.snapshotId());
+        if (snapshot == null) {
+            return;
+        }
+        snapshotMapper.updateSnapshot(snapshot, response);
+        snapshot.setStatus(SnapshotStatus.COMPLETED);
 
-        if (snapshotOpt.isEmpty()) {
-            log.error("CRITICAL: Received inference result for non-existent snapshot ID: {}", response.snapshotId());
+        MonitoringTask task = snapshot.getMonitoringTask();
+        task.setCurrentSnapshot(null);
+        monitoringTaskRepository.save(task);
+    }
+
+    @Transactional
+    public void completeLocally(MonitoringTask task, String localSummary) {
+        Snapshot snapshot = findSnapshot(task.getCurrentSnapshot().getId());
+        if (snapshot == null) {
             return;
         }
 
-        Snapshot snapshot = snapshotOpt.get();
-        snapshotMapper.updateSnapshot(snapshot, response);
+        ObjectNode errorsNode = (snapshot.getErrors() == null)
+                ? objectMapper.createObjectNode()
+                : (ObjectNode) snapshot.getErrors();
+
+        errorsNode.put("localSummary", localSummary);
+
+        snapshot.setErrors(errorsNode);
         snapshot.setStatus(SnapshotStatus.COMPLETED);
+
+        task.setCurrentSnapshot(null);
+        monitoringTaskRepository.save(task);
+    }
+
+    private Snapshot findSnapshot(UUID snapshotId) {
+        Optional<Snapshot> snapshotOpt = snapshotRepository.findById(snapshotId);
+
+        if (snapshotOpt.isEmpty()) {
+            log.error("CRITICAL: Received inference result for non-existent snapshot ID: {}", snapshotId);
+            return null;
+        }
+
+        return snapshotOpt.get();
     }
 }

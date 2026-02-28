@@ -52,3 +52,9 @@ eureka:
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${random.value}
+
+
+logging:
+  level:
+    org.apache.kafka: WARN
+    org.springframework.kafka: WARN

@@ -1,4 +1,4 @@
-package com.solution.coreservice.service;
+package com.solution.coreservice.service.snapshot;
 
 import com.solution.coreservice.dto.response.SnapshotResponse;
 import com.solution.coreservice.dto.response.SnapshotShortResponse;

@@ -3,7 +3,6 @@ spring:
     name: core-service
   jpa:
     open-in-view: false
-    show-sql: true
 
     properties:
       hibernate:
@@ -55,12 +54,22 @@ app:
     inference-request: ${KAFKA_TOPIC_INFERENCE_SNAPSHOT_REQUEST:inference.snapshot.request}
     inference-result: ${KAFKA_TOPIC_INFERENCE_SNAPSHOT_RESULT:inference.snapshot.result}
   outbox:
-    relay-delay: 5000
-    batch-size: 50
+    relay:
+      delay: 20000
+      batch-size: 50
+    reaper:
+      delay: 500000
+      batch-size: 50
   scheduler:
     snapshot:
-      rate-ms: 50000
+      rate-ms: 20000
       batch-size: 25
     report:
       rate-ms: 500000
       batch-size: 25
+
+
+logging:
+  level:
+    org.apache.kafka: WARN
+    org.springframework.kafka: WARN

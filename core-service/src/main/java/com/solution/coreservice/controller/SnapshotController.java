@@ -2,7 +2,7 @@ package com.solution.coreservice.controller;
 
 import com.solution.coreservice.dto.response.SnapshotResponse;
 import com.solution.coreservice.dto.response.SnapshotShortResponse;
-import com.solution.coreservice.service.SnapshotService;
+import com.solution.coreservice.service.snapshot.SnapshotService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController

@@ -34,16 +34,20 @@ public class VictoriaLogsClient {
         String fromParam = fromTime.atZoneSameInstant(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ISO_INSTANT);
 
-        String query = String.format("_stream:%%7Bapi_key_hash=\"%s\", service=\"%s\"%%7D",
-                task.getApiKey().getKeyValueHash(), task.getServiceName());
+        String streamSelector = String.format("{api_key_hash=\"%s\", service=\"%s\"}",
+                task.getApiKey().getKeyValueHash(),
+                task.getServiceName());
+
+        String query = "_stream:" + streamSelector;
+        log.info("Final VictoriaLogs Query: {}", query);
 
         return victoriaRestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .replacePath("/select/logsql/query")
-                        .queryParam("query", query)
+                        .queryParam("query", "{query}")
                         .queryParam("limit", limit)
                         .queryParam("from", fromParam)
-                        .build())
+                        .build(query))
                 .exchange((request, response) -> {
                     if (response.getStatusCode().isError()) {
                         log.error("VictoriaLogs API error: {} {}", response.getStatusCode(), response.getStatusText());

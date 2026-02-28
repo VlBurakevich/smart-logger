@@ -32,27 +32,6 @@ public class SecurityFilters {
     private static final String API_KEY_HEADER = "Api-Key";
     private static final String API_KEY_HASH_HEADER = "Api-Key-Hash";
 
-    public HandlerFilterFunction<ServerResponse, ServerResponse> logging() {
-        return (request, next) -> {
-            long startTime = System.currentTimeMillis();
-
-            log.info("==> Incoming: {} {}", request.method(), request.path());
-
-            try {
-                ServerResponse response = next.handle(request);
-                long duration = System.currentTimeMillis() - startTime;
-
-                log.info("<== Outgoing: {} {}, Status: {}, Time: {}ms",
-                        request.method(), request.path(), response.statusCode().value(), duration);
-
-                return response;
-            } catch (Exception e) {
-                log.error("<== Failed: {} {}, Error: {}ms", request.method(), request.path(), e.getMessage());
-                throw e;
-            }
-        };
-    }
-
     public HandlerFilterFunction<ServerResponse, ServerResponse> jwtAuth() {
         return (request, next) -> {
             String authHeader = request.headers().firstHeader("Authorization");
