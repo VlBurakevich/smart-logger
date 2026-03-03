@@ -1,7 +1,9 @@
 package com.solution.coreservice.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solution.coreservice.entity.OutboxMessage;
 import com.solution.coreservice.entity.OutboxStatus;
+import com.solution.coreservice.exception.OutboxException;
 import com.solution.coreservice.repository.OutboxRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OutboxService {
     private final OutboxRepository outboxRepository;
+    private final ObjectMapper objectMapper;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateFinalStatus(UUID id, OutboxStatus outboxStatus, String message) {
@@ -32,7 +35,7 @@ public class OutboxService {
 
     @Transactional
     public void resetStuckTasks(Integer batchSize) {
-
+        outboxRepository.resetStuckTasks(batchSize);
     }
 
     @Transactional
@@ -40,5 +43,21 @@ public class OutboxService {
         OffsetDateTime daysAgo = OffsetDateTime.now(ZoneOffset.UTC).minusDays(3);
         int deletedCount = outboxRepository.deleteCompletedOlderThan(daysAgo);
         log.info("Cleaner: removed {} old outbox records", deletedCount);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void saveEvent(String topic, Object payload) {
+        try {
+            OutboxMessage message = new OutboxMessage();
+            message.setTopic(topic);
+            message.setPayload(objectMapper.valueToTree(payload));
+            message.setStatus(OutboxStatus.PENDING);
+            message.setCreatedAt(OffsetDateTime.now(ZoneOffset.UTC));
+
+            outboxRepository.save(message);
+        } catch (Exception e) {
+            log.error("Failed to save outbox event for the topic: {}", topic, e);
+            throw new OutboxException("Critical failure: could not persist outboxMessage");
+        }
     }
 }

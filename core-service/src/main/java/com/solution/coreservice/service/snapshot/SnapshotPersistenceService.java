@@ -5,20 +5,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.solution.coreservice.dto.messaging.InferenceSnapshotRequest;
 import com.solution.coreservice.dto.messaging.InferenceSnapshotResponse;
 import com.solution.coreservice.entity.MonitoringTask;
-import com.solution.coreservice.entity.OutboxMessage;
-import com.solution.coreservice.entity.OutboxStatus;
 import com.solution.coreservice.entity.Snapshot;
 import com.solution.coreservice.entity.SnapshotStatus;
-import com.solution.coreservice.exception.ServiceException;
 import com.solution.coreservice.mapper.SnapshotMapper;
 import com.solution.coreservice.repository.ApiKeyRepository;
 import com.solution.coreservice.repository.MonitoringTaskRepository;
-import com.solution.coreservice.repository.OutboxRepository;
 import com.solution.coreservice.repository.SnapshotRepository;
+import com.solution.coreservice.service.OutboxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +35,10 @@ public class SnapshotPersistenceService {
     @Value("${app.kafka.inference-request}")
     private String snapshotRequestTopic;
 
-    private final OutboxRepository outboxRepository;
+    @Value("${app.kafka.notification-snapshot-alert}")
+    private String snapshotAlertTopic;
+
+    private final OutboxService outboxService;
     private final MonitoringTaskRepository monitoringTaskRepository;
     private final ApiKeyRepository apiKeyRepository;
     private final SnapshotRepository snapshotRepository;
@@ -56,55 +55,38 @@ public class SnapshotPersistenceService {
         snapshot.setStatus(SnapshotStatus.AWAITING_REPLY);
         snapshotRepository.save(snapshot);
 
-        OutboxMessage outboxMessage = new OutboxMessage();
-        outboxMessage.setTopic(snapshotRequestTopic);
-
-        try {
-            outboxMessage.setPayload(objectMapper.valueToTree(request));
-            log.info("Payload: {}", outboxMessage.getPayload());
-        } catch (Exception e) {
-            throw new ServiceException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-
-        outboxMessage.setStatus(OutboxStatus.PENDING);
-        outboxMessage.setCreatedAt(OffsetDateTime.now(ZoneOffset.UTC));
-
-        outboxRepository.save(outboxMessage);
+        outboxService.saveEvent(snapshotRequestTopic, request);
     }
 
     @Transactional
     public List<MonitoringTask> captureTasks(int batchSize) {
         List<MonitoringTask> tasks = monitoringTaskRepository.findReadyForSnapshot(batchSize);
 
+        log.info(">>_>> find tasks {}", tasks.toString());
+
         if (tasks.isEmpty()) {
             return List.of();
         }
 
-        Set<UUID> keyIds = tasks.stream()
-                .map(t -> t.getApiKey().getId())
-                .collect(Collectors.toSet());
-
-        apiKeyRepository.findAllById(keyIds);
+        preloadApiKeys(tasks);
 
         List<Snapshot> preparedSnapshots = new ArrayList<>();
-        OffsetDateTime now  = OffsetDateTime.now(ZoneOffset.UTC);
+        List<MonitoringTask> capturedTasks = new ArrayList<>();
+
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
 
         for (MonitoringTask task : tasks) {
-            Snapshot snapshot = new Snapshot();
-            snapshot.setMonitoringTask(task);
-            snapshot.setStatus(SnapshotStatus.PENDING);
-            snapshot.setSnapshotStartTime(now);
-            snapshot.setSnapshotEndTime(now.plusSeconds(task.getSnapshotIntervalSec()));
-
-            preparedSnapshots.add(snapshot);
-
-            task.setCurrentSnapshot(snapshot);
-            task.setLastSnapshotAt(now);
+            createSnapshotIfReady(task, now).ifPresent(snapshot -> {
+                preparedSnapshots.add(snapshot);
+                capturedTasks.add(task);
+                task.setCurrentSnapshot(snapshot);
+                task.setLastSnapshotAt(snapshot.getSnapshotEndTime());
+            });
         }
 
         snapshotRepository.saveAll(preparedSnapshots);
 
-        return tasks;
+        return capturedTasks;
     }
 
     @Transactional
@@ -131,6 +113,16 @@ public class SnapshotPersistenceService {
         MonitoringTask task = snapshot.getMonitoringTask();
         task.setCurrentSnapshot(null);
         monitoringTaskRepository.save(task);
+        if (snapshot.getAiScore() >= 0.6) { //TODO optimize
+            outboxService.saveEvent(
+                    snapshotAlertTopic,
+                    snapshotMapper.toAlert(
+                            snapshot,
+                            task.getServiceName(),
+                            task.getApiKey().getUser().getId()
+                    )
+            );
+        }
     }
 
     @Transactional
@@ -162,5 +154,33 @@ public class SnapshotPersistenceService {
         }
 
         return snapshotOpt.get();
+    }
+
+    private Optional<Snapshot> createSnapshotIfReady(MonitoringTask task, OffsetDateTime now) {
+        OffsetDateTime startTime = (task.getLastSnapshotAt() != null)
+                ? task.getLastSnapshotAt()
+                : task.getCreatedAt();
+
+        OffsetDateTime endTime = startTime.plusSeconds(task.getSnapshotIntervalSec());
+
+        if (endTime.plusSeconds(5).isAfter(now)) {
+            log.debug("Task {} is not ready yet. Next window ends at {}", task.getId(), endTime);
+            return Optional.empty();
+        }
+
+        Snapshot snapshot = new Snapshot();
+        snapshot.setMonitoringTask(task);
+        snapshot.setStatus(SnapshotStatus.PENDING);
+        snapshot.setSnapshotStartTime(startTime);
+        snapshot.setSnapshotEndTime(endTime);
+
+        return Optional.of(snapshot);
+    }
+
+    private void preloadApiKeys(List<MonitoringTask> tasks) {
+        Set<UUID> keyIds = tasks.stream()
+                .map(t -> t.getApiKey().getId())
+                .collect(Collectors.toSet());
+        apiKeyRepository.findAllById(keyIds);
     }
 }

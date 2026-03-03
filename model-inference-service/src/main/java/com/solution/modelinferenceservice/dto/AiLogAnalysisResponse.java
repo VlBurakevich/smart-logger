@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 public record AiLogAnalysisResponse(
         JsonNode errors,
         String aiDescription,
-        String rootCase,
+        String rootCause,
         String suggestedAction,
         @Min(0) @Max(1) BigDecimal aiScore
 ) {

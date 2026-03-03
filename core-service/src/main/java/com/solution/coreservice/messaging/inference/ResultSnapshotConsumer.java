@@ -44,6 +44,7 @@ public class ResultSnapshotConsumer {
         } catch (Exception e) {
             log.error(">>>> [KAFKA ERROR] Business logic failed for Snapshot ID: {}",
                     (response != null ? response.snapshotId() : "unknown"), e);
+            ack.acknowledge();
         }
     }
 }

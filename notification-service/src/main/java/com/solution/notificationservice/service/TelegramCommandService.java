@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.util.Arrays;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,11 +31,16 @@ public class TelegramCommandService {
         Long chatId = message.getChatId();
         User user = message.getFrom();
 
-        String command = text.split("\\s+")[0].toLowerCase();
+        String[] parts = text.split("\\s+");
+        String command = parts[0].toLowerCase();
+        String[] args = parts.length > 1
+                ? Arrays.copyOfRange(parts, 1, parts.length)
+                : new String[0];
 
         switch (command) {
             case "/start" -> handleStart(chatId, text, user);
-            case "/report" -> handleReport(chatId, user);
+            case "/services" -> handleServices(chatId, user);
+            case "/report" -> handleReport(chatId, user, args);
             case "/help" -> handleHelp(chatId);
             case "/stop", "/unbind" -> handleUnbind(chatId);
             default -> handleUnknown(chatId);
@@ -60,8 +67,12 @@ public class TelegramCommandService {
         }
     }
 
-    private void handleReport(Long chatId, User user) {
-        //TODO
+    private void handleServices(Long chatId, User user) {
+
+    }
+
+    private void handleReport(Long chatId, User user, String[] args) {
+
     }
 
     private void handleHelp(Long chatId) {

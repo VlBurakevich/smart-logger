@@ -2,9 +2,9 @@ CREATE TABLE reports
 (
     id                 UUID PRIMARY KEY,
     monitoring_task_id UUID REFERENCES monitoring_tasks (id),
-    content            JSONB,
-    error_count        INTEGER,
-    anomaly_count      INTEGER,
-    summary            TEXT,
+    totalSnapshots     INTEGER,
+    averageAiScore     DOUBLE PRECISION,
+    maxAiScore         DOUBLE PRECISION,
+    topRootCauses      JSONB,
     created_at         TIMESTAMPTZ NOT NULL
 );

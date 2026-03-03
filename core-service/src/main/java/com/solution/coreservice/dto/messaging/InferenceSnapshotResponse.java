@@ -10,7 +10,7 @@ public record InferenceSnapshotResponse (
         UUID snapshotId,
         JsonNode errors,
         String aiDescription,
-        String rootCase,
+        String rootCause,
         String suggestedAction,
         BigDecimal aiScore,
         OffsetDateTime createdAt

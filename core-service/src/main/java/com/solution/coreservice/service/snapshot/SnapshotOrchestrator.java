@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SnapshotOrchestrator {
 
-    @Value("${victorialogs.batch.limit:100}")
+    @Value("${victoria-logs.batch.limit:100}")
     private int limit;
 
     private final SnapshotPersistenceService snapshotPersistenceService;
@@ -26,10 +26,7 @@ public class SnapshotOrchestrator {
     public void processSnapshot(MonitoringTask task) {
         List<LogEntry> logs = victoriaLogsClient.fetchLogs(task, limit);
 
-        if (logPreProcessor.isSimpleEnoughFromLocalAnalyze(logs)) {
-            String summary = logPreProcessor.performLocalAnalyze(task, logs);
-            snapshotPersistenceService.completeLocally(task, summary);
-        } else {
+        if (logPreProcessor.shouldSendToAI(logs)) {
             InferenceSnapshotRequest request = new InferenceSnapshotRequest(
                     task.getCurrentSnapshot().getId(),
                     OffsetDateTime.now(ZoneOffset.UTC),
@@ -37,6 +34,9 @@ public class SnapshotOrchestrator {
             );
 
             snapshotPersistenceService.sendToInference(request, task);
+        } else {
+            String summary = logPreProcessor.performLocalAnalyze(task, logs);
+            snapshotPersistenceService.completeLocally(task, summary);
         }
     }
 }

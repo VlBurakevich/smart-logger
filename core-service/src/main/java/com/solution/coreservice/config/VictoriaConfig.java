@@ -8,7 +8,7 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class VictoriaConfig {
     @Bean
-    public RestClient victoriaRestClient(@Value("${victorialogs.url}") String baseUrl) {
+    public RestClient victoriaRestClient(@Value("${victoria-logs.url}") String baseUrl) {
         return RestClient.builder()
                 .baseUrl(baseUrl)
                 .build();

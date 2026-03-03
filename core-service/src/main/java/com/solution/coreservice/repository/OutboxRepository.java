@@ -43,4 +43,21 @@ public interface OutboxRepository extends JpaRepository<OutboxMessage, UUID> {
             "WHERE status = 'SENT'" +
             "AND updated_at < :beforeDate", nativeQuery = true)
     int deleteCompletedOlderThan(@Param("beforeDate") OffsetDateTime daysAgo);
+
+    @Modifying
+    @Query(value = """
+            UPDATE outbox_messages
+            SET status = 'PENDING',
+                retry_count = retry_count + 1,
+                error_log = 'Task was stuck in PROCESSING and was reset',
+                updated_at = NOW()
+            WHERE id IN (
+                SELECT id FROM outbox_messages
+                WHERE status = 'PROCESSING'
+                    AND updated_at < NOW() - INTERVAL '5 minutes'
+                LIMIT :batchSize
+                FOR UPDATE SKIP LOCKED
+            )
+            """, nativeQuery = true)
+    void resetStuckTasks(@Param("batchSize") Integer batchSize);
 }

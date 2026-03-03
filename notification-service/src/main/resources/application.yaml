@@ -36,7 +36,7 @@ telegram:
     username: sm_l0g_bot
 app:
   kafka:
-    notification-snapshot: "testTopic"
+    notification-snapshot-alert: ${KAFKA_TOPIC_NOTIFICATION_SNAPSHOT_ALERT:notification.snapshot.alert}
   redis:
     tg-token-ttl: 15m
 

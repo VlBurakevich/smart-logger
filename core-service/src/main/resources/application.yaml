@@ -44,7 +44,7 @@ eureka:
     instance-id: ${spring.application.name}:${random.value}
 
 
-victorialogs:
+victoria-logs:
   url: http://victorialogs:9428/insert/jsonline
   batch:
     limit: 100
@@ -53,6 +53,9 @@ app:
   kafka:
     inference-request: ${KAFKA_TOPIC_INFERENCE_SNAPSHOT_REQUEST:inference.snapshot.request}
     inference-result: ${KAFKA_TOPIC_INFERENCE_SNAPSHOT_RESULT:inference.snapshot.result}
+
+    notification-snapshot-alert: ${KAFKA_TOPIC_NOTIFICATION_SNAPSHOT_ALERT:notification.snapshot.alert}
+
   outbox:
     relay:
       delay: 20000

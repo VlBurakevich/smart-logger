@@ -27,18 +27,25 @@ public class VictoriaLogsClient {
     private final ObjectMapper objectMapper;
 
     public List<LogEntry> fetchLogs(MonitoringTask task, int limit) {
-        OffsetDateTime fromTime = task.getLastSnapshotAt() != null
-                ? task.getLastSnapshotAt()
-                : OffsetDateTime.now(ZoneOffset.UTC);
+        OffsetDateTime fromTime = task.getCurrentSnapshot().getSnapshotStartTime();
+        OffsetDateTime toTime = task.getCurrentSnapshot().getSnapshotEndTime();
+
+        log.info(">>_>> logs time from {} to {}", fromTime, toTime);
+        log.info(">>_>> logs time from {} to {}", fromTime, toTime);
 
         String fromParam = fromTime.atZoneSameInstant(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ISO_INSTANT);
+
+        String toParam = toTime.atZoneSameInstant(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ISO_INSTANT);
 
         String streamSelector = String.format("{api_key_hash=\"%s\", service=\"%s\"}",
                 task.getApiKey().getKeyValueHash(),
                 task.getServiceName());
 
-        String query = "_stream:" + streamSelector;
+        String query = String.format("_stream:%s AND _time:[%s, %s]",
+                streamSelector, fromParam, toParam);
+
         log.info("Final VictoriaLogs Query: {}", query);
 
         return victoriaRestClient.get()
@@ -46,7 +53,6 @@ public class VictoriaLogsClient {
                         .replacePath("/select/logsql/query")
                         .queryParam("query", "{query}")
                         .queryParam("limit", limit)
-                        .queryParam("from", fromParam)
                         .build(query))
                 .exchange((request, response) -> {
                     if (response.getStatusCode().isError()) {

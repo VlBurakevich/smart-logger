@@ -17,12 +17,23 @@ public class LogPreProcessor {
     private final SnapshotPersistenceService snapshotPersistenceService;
 
     @Transactional
-    public String performLocalAnalyze(MonitoringTask task, List<LogEntry> logs) {
+    public String performLocalAnalyze(MonitoringTask task, List<LogEntry> logs) { //TODO
 
         return "LocalAnalyze";
     }
 
-    public boolean isSimpleEnoughFromLocalAnalyze(List<LogEntry> logs) {
-        return logs == null || logs.isEmpty();
+    public boolean shouldSendToAI(List<LogEntry> logs) {
+        if (logs == null || logs.isEmpty()) {
+            return false;
+        }
+
+        return logs.stream()
+                .anyMatch(log -> {
+                    String level = log.level();
+                    return level != null && (level.equalsIgnoreCase("ERROR") ||
+                                    level.equalsIgnoreCase("FATAL") ||
+                                    level.equalsIgnoreCase("CRITICAL")
+                    );
+                });
     }
 }

@@ -13,6 +13,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -70,8 +71,8 @@ public class Snapshot {
     @Column(name = "max_severity")
     private Double maxSeverity;
 
-    @Column(name = "root_case")
-    private String rootCase;
+    @Column(name = "root_cause")
+    private String rootCause;
 
     @Column(name = "suggested_action")
     private String suggestedAction;
@@ -81,6 +82,9 @@ public class Snapshot {
 
     @Column(name = "ai_score")
     private Double aiScore;
+
+    @Column(name = "updated_at", nullable = false)
+    private OffsetDateTime updatedAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
@@ -107,10 +111,11 @@ public class Snapshot {
                 ", status=" + status +
                 ", errors=" + errors +
                 ", maxSeverity=" + maxSeverity +
-                ", rootCase=" + rootCase +
+                ", rootCase=" + rootCause +
                 ", suggestedAction=" + suggestedAction +
                 ", aiDescription=" + aiDescription +
                 ", aiScore=" + aiScore +
+                ",  updatedAt=" + updatedAt +
                 ", createdAt=" + createdAt +
                 "}";
     }
@@ -118,5 +123,13 @@ public class Snapshot {
     @PrePersist
     protected void onCreate()  {
         this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+        this.updatedAt = OffsetDateTime.now(ZoneOffset.UTC);
     }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = OffsetDateTime.now(ZoneOffset.UTC);
+    }
+
+
 }

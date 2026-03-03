@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -32,6 +33,13 @@ public class InternalCoreController {
             @RequestHeader("Api-Key-Hash") String apiKeyHash
     ){
         return ResponseEntity.ok(apiKeyService.exists(apiKeyHash));
+    }
+
+    @GetMapping("/users/{userId}/services")
+    public ResponseEntity<List<String>>  getServiceNames(
+        @PathVariable UUID userId
+    ) {
+        //TODO
     }
 
     @PostMapping("/account/register")
