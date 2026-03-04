@@ -2,7 +2,9 @@ package com.solution.coreservice.controller;
 
 import com.solution.coreservice.dto.request.RegisterRequest;
 import com.solution.coreservice.dto.request.StatusUpdateRequest;
+import com.solution.coreservice.dto.response.ServiceNamesResponse;
 import com.solution.coreservice.service.ApiKeyService;
+import com.solution.coreservice.service.MonitoringTaskService;
 import com.solution.coreservice.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,15 +20,16 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/core/internal")
 public class InternalCoreController {
-    private final ApiKeyService apiKeyService;
+
     private final UserService userService;
+    private final ApiKeyService apiKeyService;
+    private final MonitoringTaskService monitoringTaskService;
 
     @GetMapping("/apiKey/exists")
     public ResponseEntity<Boolean> apiKeyExists(
@@ -36,10 +39,10 @@ public class InternalCoreController {
     }
 
     @GetMapping("/users/{userId}/services")
-    public ResponseEntity<List<String>>  getServiceNames(
+    public ResponseEntity<ServiceNamesResponse> getServiceNames(
         @PathVariable UUID userId
     ) {
-        //TODO
+        return ResponseEntity.ok(monitoringTaskService.getAllServiceNames(userId));
     }
 
     @PostMapping("/account/register")

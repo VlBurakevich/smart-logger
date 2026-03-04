@@ -4,6 +4,7 @@ import com.solution.coreservice.dto.request.MonitoringTaskCreateRequest;
 import com.solution.coreservice.dto.request.MonitoringTaskUpdateRequest;
 import com.solution.coreservice.dto.response.MonitoringTaskResponse;
 import com.solution.coreservice.dto.response.MonitoringTaskShortResponse;
+import com.solution.coreservice.dto.response.ServiceNamesResponse;
 import com.solution.coreservice.entity.ApiKey;
 import com.solution.coreservice.entity.MonitoringTask;
 import com.solution.coreservice.exception.ServiceException;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -35,6 +37,16 @@ public class MonitoringTaskService {
     public Page<MonitoringTaskShortResponse> getAll(UUID userId, Pageable pageable) {
         Page<MonitoringTask> monitoringTasks = monitoringTaskRepository.findAllByApiKey_User_Id(userId, pageable);
         return monitoringTasks.map(monitoringTaskMapper::toShortResponse);
+    }
+
+    public ServiceNamesResponse getAllServiceNames(UUID userId) {
+        if (!monitoringTaskRepository.existsByApiKey_User_Id(userId)) {
+            throw new ServiceException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        List<String> serviceNames = monitoringTaskRepository.findServiceNamesByUserId(userId);
+
+        return new ServiceNamesResponse(serviceNames);
     }
 
     @Transactional

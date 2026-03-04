@@ -1,6 +1,8 @@
 package com.solution.notificationservice.service;
 
+import com.solution.notificationservice.client.CoreServiceClient;
 import com.solution.notificationservice.constants.MessageKeys;
+import com.solution.notificationservice.entity.TelegramBinding;
 import com.solution.notificationservice.events.SendTelegramMessageEvent;
 import com.solution.notificationservice.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,8 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -18,8 +22,9 @@ import java.util.Arrays;
 public class TelegramCommandService {
 
     private final TelegramBindingService telegramBindingService;
-    private final ApplicationEventPublisher publisher;
     private final MessageService messageService;
+    private final CoreServiceClient coreServiceClient;
+    private final ApplicationEventPublisher publisher;
 
     private void publish(Long chatId, String messageKey, Object... args) {
         String text = messageService.getMessage(messageKey, args);
@@ -39,7 +44,7 @@ public class TelegramCommandService {
 
         switch (command) {
             case "/start" -> handleStart(chatId, text, user);
-            case "/services" -> handleServices(chatId, user);
+            case "/services" -> handleServices(chatId);
             case "/report" -> handleReport(chatId, user, args);
             case "/help" -> handleHelp(chatId);
             case "/stop", "/unbind" -> handleUnbind(chatId);
@@ -67,8 +72,28 @@ public class TelegramCommandService {
         }
     }
 
-    private void handleServices(Long chatId, User user) {
+    private void handleServices(Long chatId) {
+        UUID userId = telegramBindingService.getUserId(chatId);
 
+        if (userId == null) {
+            publish(chatId, MessageKeys.BINDING_REQUIRED);
+            return;
+        }
+        try {
+            List<String> serviceNames = coreServiceClient.getServiceNames(userId).serviceNames();
+
+            if (serviceNames == null || serviceNames.isEmpty()) {
+                publish(chatId, MessageKeys.SERVICES_EMPTY);
+                return;
+            }
+
+            String message = String.join("\n", serviceNames);
+            publisher.publishEvent(new SendTelegramMessageEvent(chatId, message));
+
+        } catch (Exception e) {
+            log.error("Error getting services for user {}: ", userId, e);
+            publish(chatId, MessageKeys.ERROR_INTERNAL);
+        }
     }
 
     private void handleReport(Long chatId, User user, String[] args) {

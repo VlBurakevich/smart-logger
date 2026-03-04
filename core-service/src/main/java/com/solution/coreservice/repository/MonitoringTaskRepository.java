@@ -1,5 +1,6 @@
 package com.solution.coreservice.repository;
 
+import com.solution.coreservice.dto.response.ServiceNamesResponse;
 import com.solution.coreservice.entity.MonitoringTask;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,8 @@ public interface MonitoringTaskRepository extends JpaRepository<MonitoringTask, 
 
     boolean existsByIdAndApiKey_User_Id(UUID id, UUID userId);
 
+    boolean existsByApiKey_User_Id(UUID userId);
+
     Page<MonitoringTask> findAllByApiKey_User_Id(UUID userId, Pageable pageable);
 
     @Query(value = """
@@ -32,4 +35,6 @@ public interface MonitoringTaskRepository extends JpaRepository<MonitoringTask, 
             """, nativeQuery = true)
     List<MonitoringTask> findReadyForSnapshot(@Param("batchSize") int batchSize);
 
+    @Query("SELECT DISTINCT m.serviceName FROM MonitoringTask m WHERE m.apiKey.user.id = :userId")
+    List<String> findServiceNamesByUserId(@Param("userId") UUID userId);
 }

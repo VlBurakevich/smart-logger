@@ -21,6 +21,6 @@ public interface SnapshotMapper {
 
     void updateSnapshot(@MappingTarget Snapshot snapshot, InferenceSnapshotResponse response);
 
-    @Mapping(target = "snapshotId", source = "id")
+    @Mapping(target = "snapshotId", source = "snapshot.id")
     SnapshotAlert toAlert(Snapshot snapshot, String serviceName, UUID userId);
 }

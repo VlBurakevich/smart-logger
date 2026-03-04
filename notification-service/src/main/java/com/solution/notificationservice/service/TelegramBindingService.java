@@ -84,4 +84,9 @@ public class TelegramBindingService {
 
         telegramBindingRepository.deleteByChatId(chatId);
     }
+
+    public UUID getUserId(Long chatId) {
+        return telegramBindingRepository.findUserIdByChatId(chatId)
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "User not found"));
+    }
 }
