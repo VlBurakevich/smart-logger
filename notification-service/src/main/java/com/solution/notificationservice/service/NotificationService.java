@@ -31,6 +31,9 @@ public class NotificationService {
             publisher.publishEvent(new SendTelegramMessageEvent(chatId, message));
         }
     }
+    public void processReport() {
+
+    }
 
     private String buildAlertMessage(SnapshotAlert alert) {
         int percentage = alert.aiScore().multiply(BigDecimal.valueOf(100)).intValue();
@@ -54,4 +57,7 @@ public class NotificationService {
         );
     }
 
+    private String buildReportMessage() {
+        return "";
+    }
 }

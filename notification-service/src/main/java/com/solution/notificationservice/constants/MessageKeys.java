@@ -17,7 +17,10 @@ public class MessageKeys {
     public static final String HELP_AUTHORIZED = "bot.help.authorized";
     public static final String HELP_UNAUTHORIZED = "bot.help.unauthorized";
 
+    public static final String REPORT_ACCEPTED = "bot.report.accepted";
+
     public static final String UNKNOWN = "bot.unknown";
     public static final String SERVICES_EMPTY = "bot.services.empty";
     public static final String ERROR_INTERNAL = "bot.error.internal";
+    public static final String REPORT_INVALID_ARGS = "bot.error.invalid.args";
 }

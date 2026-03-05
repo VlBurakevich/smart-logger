@@ -2,9 +2,11 @@ package com.solution.notificationservice.service;
 
 import com.solution.notificationservice.client.CoreServiceClient;
 import com.solution.notificationservice.constants.MessageKeys;
-import com.solution.notificationservice.entity.TelegramBinding;
+import com.solution.notificationservice.dto.CoreReportRequest;
+import com.solution.notificationservice.dto.ReportArgs;
 import com.solution.notificationservice.events.SendTelegramMessageEvent;
 import com.solution.notificationservice.exception.ServiceException;
+import com.solution.notificationservice.messaging.core.CoreReportProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,9 +24,11 @@ import java.util.UUID;
 public class TelegramCommandService {
 
     private final TelegramBindingService telegramBindingService;
+    private final ArgsParserService argsParserService;
     private final MessageService messageService;
     private final CoreServiceClient coreServiceClient;
     private final ApplicationEventPublisher publisher;
+    private final CoreReportProducer coreReportProducer;
 
     private void publish(Long chatId, String messageKey, Object... args) {
         String text = messageService.getMessage(messageKey, args);
@@ -45,7 +49,7 @@ public class TelegramCommandService {
         switch (command) {
             case "/start" -> handleStart(chatId, text, user);
             case "/services" -> handleServices(chatId);
-            case "/report" -> handleReport(chatId, user, args);
+            case "/report" -> handleReport(chatId, args);
             case "/help" -> handleHelp(chatId);
             case "/stop", "/unbind" -> handleUnbind(chatId);
             default -> handleUnknown(chatId);
@@ -96,8 +100,31 @@ public class TelegramCommandService {
         }
     }
 
-    private void handleReport(Long chatId, User user, String[] args) {
+    private void handleReport(Long chatId, String[] args) {
+        UUID userId = telegramBindingService.getUserId(chatId);
 
+        if (userId == null) {
+            publish(chatId, MessageKeys.BINDING_REQUIRED);
+            return;
+        }
+
+        try {
+            ReportArgs reportArgs = argsParserService.parseReportArgs(args);
+
+            CoreReportRequest request = new CoreReportRequest(
+                    userId,
+                    reportArgs.serviceNames(),
+                    reportArgs.periodHours()
+            );
+
+            coreReportProducer.requestReport(request);
+            publish(chatId, MessageKeys.REPORT_ACCEPTED);
+        } catch (IllegalArgumentException e) {
+            publish(chatId, MessageKeys.REPORT_INVALID_ARGS);
+        } catch (Exception e) {
+            log.error("Error requesting report for user {}: ", userId, e);
+            publish(chatId, MessageKeys.ERROR_INTERNAL);
+        }
     }
 
     private void handleHelp(Long chatId) {

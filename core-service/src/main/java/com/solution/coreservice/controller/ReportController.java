@@ -2,7 +2,7 @@ package com.solution.coreservice.controller;
 
 import com.solution.coreservice.dto.response.ReportResponse;
 import com.solution.coreservice.dto.response.ReportShortResponse;
-import com.solution.coreservice.service.ReportService;
+import com.solution.coreservice.service.report.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

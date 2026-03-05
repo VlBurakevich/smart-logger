@@ -1,4 +1,4 @@
-package com.solution.coreservice.service;
+package com.solution.coreservice.service.report;
 
 import com.solution.coreservice.dto.response.ReportResponse;
 import com.solution.coreservice.dto.response.ReportShortResponse;
