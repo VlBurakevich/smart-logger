@@ -130,6 +130,4 @@ public class Snapshot {
     protected void onUpdate() {
         this.updatedAt = OffsetDateTime.now(ZoneOffset.UTC);
     }
-
-
 }

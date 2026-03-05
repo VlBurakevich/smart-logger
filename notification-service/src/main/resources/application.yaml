@@ -31,12 +31,15 @@ spring:
 
 telegram:
   bot:
-    token: 7536895747:AAHa5fHDY0cFY2xGHKTnfssRbH5kjGB6BC8
+    token: ${TELEGRAM_API_TOKEN}
     link: t.me/sm_l0g_bot
     username: sm_l0g_bot
 app:
   kafka:
     notification-snapshot-alert: ${KAFKA_TOPIC_NOTIFICATION_SNAPSHOT_ALERT:notification.snapshot.alert}
+
+    notification-report-request: ${KAFKA_TOPIC_NOTIFICATION_REPORT_REQUEST:notification.report.request}
+    notification-report-result: ${KAFKA_TOPIC_NOTIFICATION_REPORT_RESULT:notification.report.result}
   redis:
     tg-token-ttl: 15m
 

@@ -193,8 +193,14 @@ services:
       EUREKA_URL: http://eureka-service:8761/eureka/
 
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
       KAFKA_TOPIC_INFERENCE_SNAPSHOT_REQUEST: inference.snapshot.request
       KAFKA_TOPIC_INFERENCE_SNAPSHOT_RESULT: inference.snapshot.result
+
+      KAFKA_TOPIC_NOTIFICATION_SNAPSHOT_ALERT: notification.snapshot.alert
+
+      KAFKA_TOPIC_NOTIFICATION_REPORT_REQUEST: notification.report.request
+      KAFKA_TOPIC_NOTIFICATION_REPORT_RESULT: notification.report.result
 
       DATABASE_URL: jdbc:postgresql://core-service-db:5432/core-service-db
       DATABASE_USER: root
@@ -266,6 +272,8 @@ services:
         condition: service_healthy
       eureka-service:
         condition: service_healthy
+    env_file:
+      - .env
     environment:
       EUREKA_URL: http://eureka-service:8761/eureka/
 
@@ -276,6 +284,9 @@ services:
       REDIS_PASSWORD: "SUPER_PASSWORD!@#"
 
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_NOTIFICATION_SNAPSHOT_ALERT: notification.snapshot.alert
+      KAFKA_TOPIC_NOTIFICATION_REPORT_REQUEST: notification.report.request
+      KAFKA_TOPIC_NOTIFICATION_REPORT_RESULT: notification.report.result
 
       SERVICE_NAME: notification-service
       SPRING_PROFILES_ACTIVE: docker
