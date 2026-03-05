@@ -1,0 +1,4 @@
+CREATE TABLE roles
+(
+    name VARCHAR(32) PRIMARY KEY
+);

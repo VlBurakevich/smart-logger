@@ -1,0 +1,12 @@
+package com.solution.apigateway.client;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+
+@FeignClient(name = "core-service")
+public interface CoreServiceClient {
+
+    @GetMapping("/api/core/internal/apiKey/exists")
+    boolean apiKeyExists(@RequestHeader("Api-Key-Hash") String apiKey);
+}

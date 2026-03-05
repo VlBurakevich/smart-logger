@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: notification-service
+  jpa:
+    open-in-view: false
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+        ddl-auto: validate
+  data:
+    redis:
+      host: redis
+      port: 6379
+      connect-timeout: 500ms
+      timeout: 500ms
+      password: ${REDIS_PASSWORD}
+
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    enabled: true
+
+telegram:
+  bot:
+    token: 7536895747:AAHa5fHDY0cFY2xGHKTnfssRbH5kjGB6BC8
+    link: t.me/sm_l0g_bot
+    username: sm_l0g_bot
+app:
+  kafka:
+    notification-snapshot-alert: ${KAFKA_TOPIC_NOTIFICATION_SNAPSHOT_ALERT:notification.snapshot.alert}
+  redis:
+    tg-token-ttl: 15m
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://eureka-service:8761/eureka/}
+    registry-fetch-interval-seconds: 30
+    restclient:
+      enabled: true
+    jersey:
+      enabled: false
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
+
+
+logging:
+  level:
+    org.apache.kafka: WARN
+    org.springframework.kafka: WARN

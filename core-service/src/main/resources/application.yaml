@@ -1,1 +1,78 @@
-spring.application.name=core-service
+spring:
+  application:
+    name: core-service
+  jpa:
+    open-in-view: false
+
+    properties:
+      hibernate:
+        format_sql: true
+        ddl-auto: validate
+
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    enabled: true
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    listener:
+      concurrency: 3
+      ack-mode: manual_immediate
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://eureka-service:8761/eureka/}
+    registry-fetch-interval-seconds: 30
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
+
+
+victoria-logs:
+  url: http://victorialogs:9428/insert/jsonline
+  batch:
+    limit: 100
+
+app:
+  kafka:
+    inference-request: ${KAFKA_TOPIC_INFERENCE_SNAPSHOT_REQUEST:inference.snapshot.request}
+    inference-result: ${KAFKA_TOPIC_INFERENCE_SNAPSHOT_RESULT:inference.snapshot.result}
+
+    notification-snapshot-alert: ${KAFKA_TOPIC_NOTIFICATION_SNAPSHOT_ALERT:notification.snapshot.alert}
+
+  outbox:
+    relay:
+      delay: 20000
+      batch-size: 50
+    reaper:
+      delay: 500000
+      batch-size: 50
+  scheduler:
+    snapshot:
+      rate-ms: 20000
+      batch-size: 25
+    report:
+      rate-ms: 500000
+      batch-size: 25
+
+
+logging:
+  level:
+    org.apache.kafka: WARN
+    org.springframework.kafka: WARN

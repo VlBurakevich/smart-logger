@@ -1,1 +1,40 @@
-spring.application.name=api-gateway
+app:
+  redis:
+    api-key-ttl: 10m
+
+jwt:
+  secret:
+    key: ls2cNJbDUq2wly1Q+84QqvXcdP3iasWTj0XP0sYmKP0=
+
+logging:
+  level:
+    com.solution.apigateway: DEBUG
+    org.springframework.cloud.gateway: TRACE
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+      connect-timeout: 500ms
+      timeout: 500ms
+      password: ${REDIS_PASSWORD}
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-service:8761/eureka/}
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    hostname: api-gateway
+    instance-id: ${spring.application.name}:${random.value}
+
