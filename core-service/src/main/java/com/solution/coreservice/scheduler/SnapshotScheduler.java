@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SnapshotScheduler {
-    private final SnapshotPersistenceService processingService;
+    private final SnapshotPersistenceService snapshotProcessingService;
     private final SnapshotOrchestrator snapshotOrchestrator;
 
     @Value("${app.scheduler.snapshot.batch-size:10}")
@@ -29,14 +29,14 @@ public class SnapshotScheduler {
             lockAtLeastFor = "5s"
     )
     public void scheduleSnapshotProcessing() {
-        List<MonitoringTask> tasks = processingService.captureTasks(batchSize);
+        List<MonitoringTask> tasks = snapshotProcessingService.captureTasks(batchSize);
 
         for (MonitoringTask task: tasks) {
             try {
                 snapshotOrchestrator.processSnapshot(task);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
-                processingService.handleFailure(task);
+                snapshotProcessingService.handleFailure(task);
             }
         }
     }

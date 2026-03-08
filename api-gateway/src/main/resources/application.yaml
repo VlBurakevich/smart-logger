@@ -30,9 +30,10 @@ eureka:
   client:
     fetch-registry: true
     register-with-eureka: true
+    registry-fetch-interval-seconds: 5
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-service:8761/eureka/}
-    registry-fetch-interval-seconds: 5
+
   instance:
     prefer-ip-address: true
     hostname: api-gateway

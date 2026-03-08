@@ -1,4 +1,4 @@
-package com.solution.modelinferenceservice.messaging;
+package com.solution.modelinferenceservice.messaging.snapshot;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

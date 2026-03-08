@@ -146,13 +146,10 @@ services:
         condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-service:8761/eureka/
-
       REDIS_PASSWORD: "SUPER_PASSWORD!@#"
-
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_TOPIC_INPUT_SUMMARY: logs.summary
       SERVICE_NAME: api-gateway
       SPRING_PROFILES_ACTIVE: docker
+
     entrypoint: [ "java", "--add-opens", "java.base/java.lang=ALL-UNNAMED", "-jar", "app.jar" ]
     ports:
       - "8080:8080"
@@ -169,11 +166,9 @@ services:
         condition: service_healthy
     environment:
       EUREKA_URL: http://eureka-service:8761/eureka/
-
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_TOPIC_OUTPUT: logs.raw
       SERVICE_NAME: log-ingestion
       SPRING_PROFILES_ACTIVE: docker
+
     ports:
       - "8081:8080"
     networks:
@@ -201,6 +196,9 @@ services:
 
       KAFKA_TOPIC_NOTIFICATION_REPORT_REQUEST: notification.report.request
       KAFKA_TOPIC_NOTIFICATION_REPORT_RESULT: notification.report.result
+
+      KAFKA_TOPIC_INFERENCE_REPORT_REQUEST: inference.report.request
+      KAFKA_TOPIC_INFERENCE_REPORT_RESULT: inference.report.result
 
       DATABASE_URL: jdbc:postgresql://core-service-db:5432/core-service-db
       DATABASE_USER: root
@@ -248,11 +246,16 @@ services:
     environment:
       EUREKA_URL: http://eureka-service:8761/eureka/
 
-      MISTRAL_API_KEY: ${MISTRAL_API_KEY}
-
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
       KAFKA_TOPIC_INFERENCE_SNAPSHOT_RESULT: inference.snapshot.result
+
       KAFKA_TOPIC_INFERENCE_SNAPSHOT_REQUEST: inference.snapshot.request
+      KAFKA_TOPIC_INFERENCE_REPORT_REQUEST: inference.report.request
+
+      KAFKA_TOPIC_INFERENCE_REPORT_RESULT: inference.report.result
+
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY}
 
       KAFKA_CONSUMER_GROUP_ID: model-inference-group
       SERVICE_NAME: model-inference
@@ -277,16 +280,18 @@ services:
     environment:
       EUREKA_URL: http://eureka-service:8761/eureka/
 
-      DATABASE_URL: jdbc:postgresql://notification-service-db:5432/notification-service-db
-      DATABASE_USER: root
-      DATABASE_PASSWORD: root
-
       REDIS_PASSWORD: "SUPER_PASSWORD!@#"
 
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
       KAFKA_TOPIC_NOTIFICATION_SNAPSHOT_ALERT: notification.snapshot.alert
+
       KAFKA_TOPIC_NOTIFICATION_REPORT_REQUEST: notification.report.request
       KAFKA_TOPIC_NOTIFICATION_REPORT_RESULT: notification.report.result
+
+      DATABASE_URL: jdbc:postgresql://notification-service-db:5432/notification-service-db
+      DATABASE_USER: root
+      DATABASE_PASSWORD: root
 
       SERVICE_NAME: notification-service
       SPRING_PROFILES_ACTIVE: docker

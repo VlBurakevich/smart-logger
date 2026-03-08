@@ -1,6 +1,7 @@
 spring:
   application:
     name: notification-service
+
   jpa:
     open-in-view: false
     show-sql: true
@@ -9,6 +10,7 @@ spring:
       hibernate:
         format_sql: true
         ddl-auto: validate
+
   data:
     redis:
       host: redis
@@ -22,6 +24,7 @@ spring:
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
 
@@ -34,12 +37,14 @@ telegram:
     token: ${TELEGRAM_API_TOKEN}
     link: t.me/sm_l0g_bot
     username: sm_l0g_bot
+
 app:
   kafka:
     notification-snapshot-alert: ${KAFKA_TOPIC_NOTIFICATION_SNAPSHOT_ALERT:notification.snapshot.alert}
 
     notification-report-request: ${KAFKA_TOPIC_NOTIFICATION_REPORT_REQUEST:notification.report.request}
     notification-report-result: ${KAFKA_TOPIC_NOTIFICATION_REPORT_RESULT:notification.report.result}
+
   redis:
     tg-token-ttl: 15m
 
@@ -47,11 +52,15 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_URL:http://eureka-service:8761/eureka/}
+
     registry-fetch-interval-seconds: 30
+
     restclient:
       enabled: true
+
     jersey:
       enabled: false
+
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${random.value}

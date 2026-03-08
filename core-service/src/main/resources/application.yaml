@@ -1,6 +1,7 @@
 spring:
   application:
     name: core-service
+
   jpa:
     open-in-view: false
 
@@ -38,7 +39,9 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_URL:http://eureka-service:8761/eureka/}
+
     registry-fetch-interval-seconds: 30
+
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${random.value}
@@ -63,13 +66,16 @@ app:
     relay:
       delay: 20000
       batch-size: 50
+
     reaper:
       delay: 500000
       batch-size: 50
+
   scheduler:
     snapshot:
       rate-ms: 20000
       batch-size: 25
+
     report:
       rate-ms: 500000
       batch-size: 25

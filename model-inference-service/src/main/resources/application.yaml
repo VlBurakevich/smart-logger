@@ -1,9 +1,11 @@
 spring:
   application:
     name: model-inference-service
+
   ai:
     mistralai:
       api-key: ${MISTRAL_API_KEY}
+
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
 
@@ -28,7 +30,9 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_URL:http://eureka-service:8761/eureka/}
+
     registry-fetch-interval-seconds: 30
+
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${random.value}

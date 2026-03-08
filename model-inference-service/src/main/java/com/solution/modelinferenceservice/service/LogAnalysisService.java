@@ -29,7 +29,7 @@ public class LogAnalysisService {
         this.objectMapper = objectMapper;
     }
 
-    @Value("classpath:/prompts/analyze-log.st")
+    @Value("classpath:/prompts/analyze-snapshot-log.st")
     private Resource analyzeLogsPromptResource;
 
 
