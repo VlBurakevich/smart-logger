@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.solution.modelinferenceservice.dto.AiLogAnalysisResponse;
 import com.solution.modelinferenceservice.dto.InferenceSnapshotRequest;
 import com.solution.modelinferenceservice.dto.InferenceSnapshotResult;
@@ -15,8 +16,12 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Slf4j
 @Service
@@ -38,17 +43,20 @@ public class LogAnalysisService {
             backoff = @Backoff(delay = 2000, multiplier = 2)
     )
     public InferenceSnapshotResult analyzeLogs(InferenceSnapshotRequest request) throws  JsonProcessingException {
+
+        String logsJson = objectMapper.writeValueAsString(request.logs());
+        String prompt = renderPrompt(request.snapshotId().toString(), logsJson);
+
         String rawAnswer = chatClient.prompt()
-                .user(u -> u.text(analyzeLogsPromptResource)
-                        .param("taskId", request.snapshotId())
-                        .param("logs", request.logs()))
+                .user(prompt)
                 .call()
                 .content();
 
         String cleanJson = sanitize(rawAnswer);
+        String normalizedJson = normalizeAiResponse(cleanJson);
 
         try {
-            AiLogAnalysisResponse aiResponse = objectMapper.readValue(cleanJson, AiLogAnalysisResponse.class);
+            AiLogAnalysisResponse aiResponse = objectMapper.readValue(normalizedJson, AiLogAnalysisResponse.class);
 
             JsonNode errorsNode = (aiResponse.errors() != null)
                     ? objectMapper.valueToTree(aiResponse.errors())
@@ -69,12 +77,65 @@ public class LogAnalysisService {
         }
     }
 
+    private String renderPrompt(String taskId, String logs) {
+        try {
+            String template = analyzeLogsPromptResource.getContentAsString(StandardCharsets.UTF_8);
+
+            return template
+                    .replace("$taskId$", taskId)
+                    .replace("$logs$", logs);
+        } catch (IOException e) {
+            log.error("Failed to read prompt template", e);
+            throw new RuntimeException("Failed to read prompt template", e);
+        }
+    }
+
     private String sanitize(String input) {
         if (input == null) return "{}";
         String result = input.trim();
         if (result.contains("```")) {
             result = result.replaceAll("(?s)```(?:json)?\\s*(.*?)\\s*```", "$1").trim();
         }
-        return result.substring(result.indexOf("{"), result.lastIndexOf("}") + 1);
+
+        int start = result.indexOf("{");
+        int end = result.lastIndexOf("}");
+        if (start == -1 || end == -1 || end <= start) {
+            throw new RuntimeException("AI response does not contain valid JSON object");
+        }
+
+        return result.substring(start, end + 1);
+    }
+
+    private String normalizeAiResponse(String json) {
+        try {
+            JsonNode root = objectMapper.readTree(json);
+
+            if (root.has("suggestedAction")) {
+                JsonNode action = root.get("suggestedAction");
+                if (action.isArray()) {
+                    String joined = StreamSupport.stream(action.spliterator(), false)
+                            .map(JsonNode::asText)
+                            .collect(Collectors.joining("; "));
+                    ((ObjectNode) root).put("suggestedAction", joined);
+                    log.debug("Normalized suggestedAction: array -> string");
+                }
+            }
+
+            if (root.has("aiScore")) {
+                JsonNode score = root.get("aiScore");
+                if (score.isTextual()) {
+                    ((ObjectNode) root).put("aiScore", score.asDouble());
+                }
+            }
+
+            if (!root.has("errors") || root.get("errors").isNull()) {
+                ((ObjectNode) root).set("errors", JsonNodeFactory.instance.arrayNode());
+            }
+
+            return objectMapper.writeValueAsString(root);
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to normalize AI response, using original. Error: {}", e.getMessage());
+            return json;
+        }
     }
 }

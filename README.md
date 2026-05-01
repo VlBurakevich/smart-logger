@@ -1,4 +1,4 @@
-# Smart Logger
+я# Smart Logger
 Приложение для умной обработки и мониторинга логов на сервисах spring-boot
 https://github.com/VlBurakevich/smart-log-starter 
 стартер для отправки логов
@@ -21,3 +21,7 @@ Technology Stack - Java 21, Spring Boot 3.5, Spring Cloud, Kafka, PostgreSQL, Re
 
 стартер отсылает логи сервиса на сервер для анализа  
 пользователь регистрируется в телеграмме и может получать сообщения об ошибках или запрашивать report
+
+### Примерная Архитектура
+
+![img.png](assets/img.png)

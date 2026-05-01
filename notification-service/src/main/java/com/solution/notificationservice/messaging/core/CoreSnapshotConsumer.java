@@ -7,7 +7,6 @@ import com.solution.notificationservice.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -23,7 +22,7 @@ public class CoreSnapshotConsumer {
             groupId = "notification-service-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void consume(String rawJsonMessage, Acknowledgment ack) {
+    public void consume(String rawJsonMessage) {
         SnapshotAlert alert = null;
 
         try {
@@ -32,15 +31,13 @@ public class CoreSnapshotConsumer {
 
             notificationService.processAlert(alert);
 
-            ack.acknowledge();
         } catch (JsonProcessingException e) {
             log.error(">>>> [KAFKA ERROR] Failed to parse JSON. Poison pill skipped! Message: {}. Error: {}",
                     rawJsonMessage, e.getMessage());
-
-            ack.acknowledge();
         } catch (Exception e) {
             log.error(">>>> [KAFKA ERROR] Business logic failed for Snapshot ID: {}",
                     (alert != null ? alert.snapshotId() : "unknown"), e);
+            throw new RuntimeException(e);
         }
     }
 }

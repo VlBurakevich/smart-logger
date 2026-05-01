@@ -31,8 +31,9 @@ public class NotificationService {
             publisher.publishEvent(new SendTelegramMessageEvent(chatId, message));
         }
     }
-    public void processReport() {
 
+    public void processReport() {
+        //TODO
     }
 
     private String buildAlertMessage(SnapshotAlert alert) {
