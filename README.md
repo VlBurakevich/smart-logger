@@ -1,4 +1,4 @@
-я# Smart Logger
+# Smart Logger
 Приложение для умной обработки и мониторинга логов на сервисах spring-boot
 https://github.com/VlBurakevich/smart-log-starter 
 стартер для отправки логов
